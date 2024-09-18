@@ -2,7 +2,7 @@
 
 #include "GetObjects.js"
 
-const DEBUG = true;
+const DEBUG = false;
 
 function radians_to_degrees(radians)
 {
