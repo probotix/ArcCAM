@@ -6,6 +6,10 @@
  	software today. The aim of this project is to develop a CAM plug-in for Moi3D that generates and 
   	exports tool paths for CNC machines. This CAM software will be designed to produce optimized gcode, 
    	leveraging the advanced gcode controls used by modern CNC machines.
+	
+	I've included a slightly modified version of OrderCurves in this repository until I have that 
+	functionality built into ArcCAM. Hopefully Michael can help to figure out how to set the start point
+	with a pointpicker.
   
 	Features:
 	- Identify semicircles and use G2 and G3 arcs whenever possible
@@ -15,7 +19,7 @@
 
     git clone https://github.com/probotix/ArcCAM
 
-
+	You can preview the gcode output here: https://ncviewer.com/
 
 # Changelog
 - First crack. Able to generate simple tool paths for import into Haas CNC controls.
