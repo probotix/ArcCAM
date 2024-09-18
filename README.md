@@ -7,7 +7,7 @@
 
 Puts the .iso file in the ```linuxcnc-live-build``` folder.
 
-# Changes for Bookworm as per 2.9 Getting Linuxcnc Docs
+# Changelog
 - First crack. Able to generate simple tool paths for import into Haas CNC controls.
    
 
