@@ -1,8 +1,38 @@
 // config: norepeat
 
+# simple toolpath generator
+
 #include "GetObjects.js"
 
 const DEBUG = false;
+
+function dump(obj) {
+
+    var text = obj.toString();
+
+    for (propname in obj) {
+
+        try {
+            var value = obj[propname];
+            var valString;
+            
+            // no .toString() on null object
+            if (value === null) {
+                valString = 'null';
+            }
+    
+            else {
+                valString = value.toString();
+            }
+            
+            text += '\n' + propname + '=' + valString;
+        
+        } catch (error) { // in case property undefined
+            text += '\n' + propname + '=';
+        }
+    }
+    return text;
+}
 
 function radians_to_degrees(radians)
 {
@@ -15,9 +45,13 @@ function alert( msg )
 	moi.ui.commandUI.alert( msg );
 }
 
+var filename = '/Users/lensh/Documents/log.txt';
+var f2 = moi.filesystem.openFileStream( filename, 'w' );	
+	
 function debug( msg )
 {
 	moi.log( msg + "\n" );
+	f2.writeLine( "--------------------------------\n" + msg + "\n" );
 }
 
 function find_angle(p0,p1,c) {
@@ -52,6 +86,7 @@ function arcCAM()
 {
 	var ObjectPicker = moi.ui.createObjectPicker();
 	ObjectPicker.allowCurves();
+	ObjectPicker.allowStandaloneCurves();
 	if ( !GetObjects( ObjectPicker ) )
 		return;
 		
@@ -78,15 +113,19 @@ function arcCAM()
 			var gx = "G0";
 			
 			var segment = segments.item(j);
+			debug(dump(segment));
 			var min = segment.domainMin;
 			var max = segment.domainMax;
 			var len = max - min;
+			
+			debug("UserText\n" + dump(segment.getAllUserText));
 			
 			var type = "Line";
 			var StartX = round(segment.getStartPt().x, 3);
 			var StartY = round(segment.getStartPt().y, 3);
 			var arcEndX = round(segment.getEndPt().x, 3);
 			var arcEndY = round(segment.getEndPt().y, 3);
+			var arcCenter = segment.conicFrame.origin;
 			var arcCenterX = round(segment.conicFrame.origin.x, 3);
 			var arcCenterY = round(segment.conicFrame.origin.y, 3);
 			var arcRadius = round(segment.conicRadius, 3);
@@ -111,7 +150,7 @@ function arcCAM()
 				prevX = round(segments.item(j-1).getEndPt().x, 3);
 				prevY = round(segments.item(j-1).getEndPt().y, 3);
 			}
-			if ( segment.isCircle || segment.isArc )
+			if ( segment.isCircle || segment.isArc || segment.isCurveSegment)
 			{
 				type = "Arc"
 				arcI = round(arcEndX - prevX, 3);
@@ -134,10 +173,19 @@ function arcCAM()
 					segment.conicFrame.origin + " arcAngle: " + arcAngle2 + " " + arcEndAngle + " arcTangent: " + arcTangent + " arcCurve: " + arcCurve + ")";
 				}
 			}
-			else
+			else if(segment.isEllipse)
+			{
+					alert( 'elipse' );
+			}
+			else if(segment.isLine || segment.isSimpleLine)
 			{
 				gx = "G1";
 				block = gx + " X" + arcEndX + " Y" + arcEndY;	
+			}
+			else
+			{
+				block = gx + " X" + arcEndX + " Y" + arcEndY  + " (FIX ME)";	
+				alert( "Seg " + j + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcRadians: " + arcAngle2 + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve);		
 			}
 			gcode += block + "\n";
 		}
@@ -147,6 +195,7 @@ function arcCAM()
 	var f = moi.filesystem.openFileStream( filename, 'w' );	
 	f.writeLine( startblock + gcode + endblock);
 	f.close();
+	f2.close();
 	
 }
 
