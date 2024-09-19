@@ -1,6 +1,6 @@
 // config: norepeat
 
-# simple toolpath generator
+// simple toolpath generator
 
 #include "GetObjects.js"
 
