@@ -101,7 +101,7 @@ function arcCAM()
 	if ( filename == '' )
 		return;
 	
-	var startblock = "%\n(o69020)\n\n";
+	var startblock = "%\no69022\n\n";
 	var endblock = "%";
 
 	for ( var i = 0; i < curves.length; i++ )
@@ -150,7 +150,7 @@ function arcCAM()
 				prevX = round(segments.item(j-1).getEndPt().x, 3);
 				prevY = round(segments.item(j-1).getEndPt().y, 3);
 			}
-			if ( segment.isCircle || segment.isArc || segment.isCurveSegment)
+			if ( segment.isCircle || segment.isArc )
 			{
 				type = "Arc"
 				arcI = round(arcEndX - prevX, 3);
@@ -184,6 +184,7 @@ function arcCAM()
 			}
 			else
 			{
+				gx = "G1";
 				block = gx + " X" + arcEndX + " Y" + arcEndY  + " (FIX ME)";	
 				alert( "Seg " + j + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcRadians: " + arcAngle2 + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve);		
 			}
