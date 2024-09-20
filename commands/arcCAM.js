@@ -4,7 +4,7 @@
 
 #include "GetObjects.js"
 
-const DEBUG = true;
+const DEBUG = false;
 
 function dump(obj) {
 
@@ -122,9 +122,6 @@ function arcCAM()
 	var startblock = "";
 	var endblock = "%";
 	
-	//var presets = moi.geometryDatabase.getAnnotationPresets();
-	//debug( dump( presets.item(0) ) );
-	
 	var styles = moi.geometryDatabase.getObjectStyles();
 	//debug(dump(styles));
 	//styles.item(i).name.length > 25 )
@@ -132,11 +129,10 @@ function arcCAM()
 	for ( var i = 0; i < curves.length; i++ )
 	{
 		var segments = curves.item(i).getSubObjects();
-		//debug(dump(curves.item(i)));
-		//styleIndex=2
+
 		var style = curves.item(i).styleIndex;
 		debug( style );
-		//alert( dump(curves.item(i).getAllUserText()));
+
 		usertext = curves.item(i).getAllUserText();
 		for ( var u = 0; u < usertext.length; u++ )
 		{
@@ -152,7 +148,6 @@ function arcCAM()
 			var gx = "G0";
 	
 			var segment = segments.item(j);
-			//debug(dump(segment));
 			var min = segment.domainMin;
 			var max = segment.domainMax;
 			var len = max - min;
