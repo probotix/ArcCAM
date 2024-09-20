@@ -63,42 +63,25 @@ function find_angle(p0,p1,c) {
 	return radians;
 }
 
-function isClockwise( p0,p1,c )
-{
-		var pi = Math.PI;
-        var angle = Math.atan2(p0.y - c.y, p0.x - c.x) - Math.atan2(p1.y - c.y, p1.x - c.x);
-
-		if ( angle == 0 || angle == pi )
- 			return 0;
-		else if ( angle > 0 && angle < pi )
-			return 1;
-		else if ( angle > pi )
-			return -1;
-		else if ( angle < 0 && angle > (pi * -1))
-			return -1;
-		else if ( angle < (pi * -1))
-			return 1;
-}
-
-function isClockwise2(k,l,m)
+function isClockwise(k,l,m)
 {
 	var XLK = l.x - k.x;
 	var XMK = m.x - k.x;
-	var YLK = m.y - k.y;
+	var YLK = l.y - k.y;
 	var YMK = m.y - k.y;
 
 	signed_area = 0.5 * (( XLK*YMK ) - ( XMK*YLK ));
 	if( signed_area > 0)
-		return 1;
-	else if( signed_area < 0)
 		return -1;
+	else if( signed_area < 0)
+		return 1;
 	else 
 		return 0;
 }
 
 
 
-function arcCAM()
+function ArcCAM()
 {
 	var ObjectPicker = moi.ui.createObjectPicker();
 	ObjectPicker.allowCurves();
@@ -170,13 +153,9 @@ function arcCAM()
 			var arcTangent = segment.evaluateTangent( t );	
 			var start = segment.getStartPt();
 			var midpoint = segment.evaluatePoint( min + (0.5 * len) );
-			var end = segment.getEndPt();
-			debug( start + "\n" + midpoint + "\n" + end );			
+			var end = segment.getEndPt();		
 			var arcAngle = round(radians_to_degrees(find_angle( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin )),1);
-			//var arcAngle2 = round(find_angle2( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin ),1);
-			//var clockwise2 = isClockwise( find_angle2( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin ));
-			var clockwise = isClockwise( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin );
-			var clockwise = isClockwise2( start, midpoint, end );
+			var clockwise = isClockwise( start, midpoint, end );
 			
 			if( j == 0 )
 			{
@@ -224,9 +203,9 @@ function arcCAM()
 			
 			note += "Start: " + segment.getStartPt() + " End: " + segment.getEndPt() + " ArcCenter: " + 
 					segment.conicFrame.origin;
-			gcode += block + " (" + type + " " + j + ")";
+			gcode += block;
 			if (DEBUG)
-				gcode += " (" + note + ")";
+				gcode += " (Segment " + j + " => " + type + ") (" + note + ")";
 			gcode += "\n";
 		}	
 	}
@@ -245,4 +224,4 @@ function round( x, n )
 	//return Math.round((n + Number.EPSILON) * 100) / 100
 }
 
-arcCAM();
+ArcCAM();
