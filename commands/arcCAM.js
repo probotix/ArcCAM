@@ -4,7 +4,7 @@
 
 #include "GetObjects.js"
 
-const DEBUG = false;
+const DEBUG = true;
 
 function dump(obj) {
 
@@ -63,13 +63,11 @@ function find_angle(p0,p1,c) {
 	return radians;
 }
 
-function find_angle2(p0,p1,c) {
-	return Math.atan2(p0.y - c.y, p0.x - c.x) - Math.atan2(p1.y - c.y, p1.x - c.x);
-}
-
-function isClockwise( angle )
+function isClockwise( p0,p1,c )
 {
 		var pi = Math.PI;
+        var angle = Math.atan2(p0.y - c.y, p0.x - c.x) - Math.atan2(p1.y - c.y, p1.x - c.x);
+
 		if ( angle == 0 || angle == pi )
  			return 0;
 		else if ( angle > 0 && angle < pi )
@@ -82,6 +80,24 @@ function isClockwise( angle )
 			return 1;
 }
 
+function isClockwise2(k,l,m)
+{
+	var XLK = l.x - k.x;
+	var XMK = m.x - k.x;
+	var YLK = m.y - k.y;
+	var YMK = m.y - k.y;
+
+	signed_area = 0.5 * (( XLK*YMK ) - ( XMK*YLK ));
+	if( signed_area > 0)
+		return 1;
+	else if( signed_area < 0)
+		return -1;
+	else 
+		return 0;
+}
+
+
+
 function arcCAM()
 {
 	var ObjectPicker = moi.ui.createObjectPicker();
@@ -92,8 +108,10 @@ function arcCAM()
 		
 	var curves = ObjectPicker.objects;
 	var gcode = "";	
+	var preamble = "%\no69022\n(ArcCAM)\n\nG0 G54 G90 G20 G17 G0 X0\n\nF100.\n";
 	
 	if( !DEBUG )
+		//var dir = moi.filesystem.getDirName( 'Dialog caption', 'c:\\initpath' );
 		var filename = moi.filesystem.getSaveFileName( 'Export G-code File', 'G-Code Files (*.nc)|*.nc' );
 	else
 		var filename = '/Users/lensh/Documents/test.nc';
@@ -101,24 +119,43 @@ function arcCAM()
 	if ( filename == '' )
 		return;
 	
-	var startblock = "%\no69022\n\n";
+	var startblock = "";
 	var endblock = "%";
+	
+	//var presets = moi.geometryDatabase.getAnnotationPresets();
+	//debug( dump( presets.item(0) ) );
+	
+	var styles = moi.geometryDatabase.getObjectStyles();
+	//debug(dump(styles));
+	//styles.item(i).name.length > 25 )
 
 	for ( var i = 0; i < curves.length; i++ )
 	{
 		var segments = curves.item(i).getSubObjects();
+		//debug(dump(curves.item(i)));
+		//styleIndex=2
+		var style = curves.item(i).styleIndex;
+		debug( style );
+		//alert( dump(curves.item(i).getAllUserText()));
+		usertext = curves.item(i).getAllUserText();
+		for ( var u = 0; u < usertext.length; u++ )
+		{
+			debug( usertext.item(u).key + " => " + usertext.item(u).value + "\n");
+			startblock += "(" + usertext.item(u).key + " => " + usertext.item(u).value + ")\n"
+		}
+		
+	
 		for ( var j = 0; j < segments.length; j++ ) 
 		{
 			var block = "";
+			var note = "";
 			var gx = "G0";
-			
+	
 			var segment = segments.item(j);
-			debug(dump(segment));
+			//debug(dump(segment));
 			var min = segment.domainMin;
 			var max = segment.domainMax;
 			var len = max - min;
-			
-			debug("UserText\n" + dump(segment.getAllUserText));
 			
 			var type = "Line";
 			var StartX = round(segment.getStartPt().x, 3);
@@ -135,9 +172,16 @@ function arcCAM()
 			
 			var t = min + (3/3 * len);
 			var arcCurve = segment.evaluateCurvature( t );
-			var arcTangent = segment.evaluateTangent( t );					
+			var arcTangent = segment.evaluateTangent( t );	
+			var start = segment.getStartPt();
+			var midpoint = segment.evaluatePoint( min + (0.5 * len) );
+			var end = segment.getEndPt();
+			debug( start + "\n" + midpoint + "\n" + end );			
 			var arcAngle = round(radians_to_degrees(find_angle( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin )),1);
-			var arcAngle2 = round(find_angle2( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin, j ),1);
+			//var arcAngle2 = round(find_angle2( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin ),1);
+			//var clockwise2 = isClockwise( find_angle2( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin ));
+			var clockwise = isClockwise( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin );
+			var clockwise = isClockwise2( start, midpoint, end );
 			
 			if( j == 0 )
 			{
@@ -152,26 +196,16 @@ function arcCAM()
 			}
 			if ( segment.isCircle || segment.isArc )
 			{
-				type = "Arc"
+				type = "Arc";
 				arcI = round(arcEndX - prevX, 3);
 				arcJ = round(arcEndY - prevY, 3);
-				
-				if(isClockwise(arcAngle2) == 1)
-				{
+								
+				if( clockwise > 0)
 					gx = "G2"; 
-				}
-				else if(isClockwise(arcAngle2) == -1)
-				{
+				else
 					gx = "G3";
-				}
-				debug( "Arc " + j + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + 
-					segment.conicFrame.origin + "\narcAngle: " + arcAngle2);
+
 				block = gx + " X" + arcEndX + " Y" + arcEndY + " R" + arcRadius;
-				if( DEBUG )
-				{
-					block += "(Start: " + segment.getStartPt() + " End: " + segment.getEndPt() + " ArcCenter: " + 
-					segment.conicFrame.origin + " arcAngle: " + arcAngle2 + " " + arcEndAngle + " arcTangent: " + arcTangent + " arcCurve: " + arcCurve + ")";
-				}
 			}
 			else if(segment.isEllipse)
 			{
@@ -179,22 +213,31 @@ function arcCAM()
 			}
 			else if(segment.isLine || segment.isSimpleLine)
 			{
+				type = "Line";
 				gx = "G1";
 				block = gx + " X" + arcEndX + " Y" + arcEndY;	
+				//alert( "Seg " + j + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve);	
 			}
 			else
 			{
+				type = "Unknown";
 				gx = "G1";
 				block = gx + " X" + arcEndX + " Y" + arcEndY  + " (FIX ME)";	
-				alert( "Seg " + j + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcRadians: " + arcAngle2 + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve);		
+				//alert( "Seg " + j + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve);		
 			}
-			gcode += block + "\n";
-		}
-		
+			debug( "Seg " + j + "\nType: " + type + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve + "\nisClockwise2: " + clockwise );
+			
+			note += "Start: " + segment.getStartPt() + " End: " + segment.getEndPt() + " ArcCenter: " + 
+					segment.conicFrame.origin;
+			gcode += block + " (" + type + " " + j + ")";
+			if (DEBUG)
+				gcode += " (" + note + ")";
+			gcode += "\n";
+		}	
 	}
 	
 	var f = moi.filesystem.openFileStream( filename, 'w' );	
-	f.writeLine( startblock + gcode + endblock);
+	f.writeLine( preamble + startblock + gcode + endblock);
 	f.close();
 	f2.close();
 	
