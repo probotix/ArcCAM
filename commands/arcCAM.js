@@ -3,8 +3,10 @@
 // simple toolpath generator
 
 #include "GetObjects.js"
+#include "GetPoint.js"
 
 const DEBUG = false;
+const ORIGIN_OFFSET = true;
 
 function dump(obj) {
 
@@ -79,17 +81,42 @@ function isClockwise(k,l,m)
 		return 0;
 }
 
-
-
-function ArcCAM()
+function round( x, n )
 {
-	var ObjectPicker = moi.ui.createObjectPicker();
-	ObjectPicker.allowCurves();
-	ObjectPicker.allowStandaloneCurves();
-	if ( !GetObjects( ObjectPicker ) )
+	var a = Math.pow( 10, n );
+	return (Math.round( x * a ) / a).toFixed(3);
+	//return Math.round((n + Number.EPSILON) * 100) / 100
+}
+
+function PickCurve()
+{
+	var objectpicker = moi.ui.createObjectPicker();
+	objectpicker.allowBReps();
+	objectpicker.allowCurves();
+	
+	if ( !GetObjects( objectpicker ) )
 		return;
+
+	var curves = objectpicker.objects;
+	
+	if(ORIGIN_OFFSET)
+	{
+		moi.ui.beginUIUpdate();
+		moi.ui.hideUI( 'FirstSelectPrompt' );
+		moi.ui.showUI( 'SecondSelectPrompt' );
+		moi.ui.endUIUpdate();
 		
-	var curves = ObjectPicker.objects;
+		var pointpicker = moi.ui.createPointPicker();
+		if ( !GetPoint( pointpicker ) )
+			return;
+
+		var PickedPt = pointpicker.pt;	
+		var originx = round( PickedPt.X, 3 )
+		var originy = round( PickedPt.Y, 3 )
+		var originz = round( PickedPt.Z, 3 )
+
+		//alert( "Origin Offset\nX: " + originx + "\nY: " + originy + "\nZ: " + originz );
+ 	}
 	var gcode = "";	
 	var preamble = "%\no69022\n(ArcCAM)\n\nG0 G54 G90 G20 G17 G0 X0\n\nF100.\n";
 	
@@ -120,9 +147,8 @@ function ArcCAM()
 		for ( var u = 0; u < usertext.length; u++ )
 		{
 			debug( usertext.item(u).key + " => " + usertext.item(u).value + "\n");
-			startblock += "(" + usertext.item(u).key + " => " + usertext.item(u).value + ")\n"
-		}
-		
+			gcode += "(" + usertext.item(u).key + " => " + usertext.item(u).value + ")\n"
+		}		
 	
 		for ( var j = 0; j < segments.length; j++ ) 
 		{
@@ -136,73 +162,67 @@ function ArcCAM()
 			var len = max - min;
 			
 			var type = "Line";
-			var StartX = round(segment.getStartPt().x, 3);
-			var StartY = round(segment.getStartPt().y, 3);
-			var arcEndX = round(segment.getEndPt().x, 3);
-			var arcEndY = round(segment.getEndPt().y, 3);
-			var arcCenter = segment.conicFrame.origin;
-			var arcCenterX = round(segment.conicFrame.origin.x, 3);
-			var arcCenterY = round(segment.conicFrame.origin.y, 3);
-			var arcRadius = round(segment.conicRadius, 3);
-			var arcEndAngle = round(segment.conicEndAngleRadians, 3);
-			var arcI = 0;
-			var arcJ = 0;
+			var startx = round(segment.getStartPt().x, 3);
+			var starty = round(segment.getStartPt().y, 3);
+			var endx = round(segment.getEndPt().x, 3);
+			var endy = round(segment.getEndPt().y, 3);
 			
-			var t = min + (3/3 * len);
-			var arcCurve = segment.evaluateCurvature( t );
-			var arcTangent = segment.evaluateTangent( t );	
-			var start = segment.getStartPt();
-			var midpoint = segment.evaluatePoint( min + (0.5 * len) );
-			var end = segment.getEndPt();		
-			var arcAngle = round(radians_to_degrees(find_angle( segment.getStartPt(),segment.getEndPt(), segment.conicFrame.origin )),1);
-			var clockwise = isClockwise( start, midpoint, end );
+			if(ORIGIN_OFFSET)
+			{
+				startx = round( startx - originx, 3 );
+				starty = round( starty - originy, 3 );
+				endx = round( endx - originx, 3 );
+				endy = round( endy - originy, 3 );
+			}
 			
 			if( j == 0 )
 			{
-				gcode += "G1 X" + round(segment.getStartPt().x, 3)  + " Y" + round(segment.getStartPt().y, 3) + "\n";
-				prevX = round(segments.item(j).getStartPt().x, 3);
-				prevY = round(segments.item(j).getStartPt().y, 3);
+				gcode += "G1 X" + startx  + " Y" + starty + "\n";
 			}
-			else
+			if( segment.isLine || segment.isSimpleLine )
 			{
-				prevX = round(segments.item(j-1).getEndPt().x, 3);
-				prevY = round(segments.item(j-1).getEndPt().y, 3);
+				type = "Line";
+				gx = "G1";
+				block = gx + " X" + endx + " Y" + endy;		
 			}
-			if ( segment.isCircle || segment.isArc )
+			else if ( segment.isArc )
 			{
 				type = "Arc";
-				arcI = round(arcEndX - prevX, 3);
-				arcJ = round(arcEndY - prevY, 3);
+				var t = min + (3/3 * len);
+				var arcCurve = segment.evaluateCurvature( t );
+				var arcTangent = segment.evaluateTangent( t );	
+				var arcstart = segment.getStartPt();
+				var arcmidpoint = segment.evaluatePoint( min + (0.5 * len) );
+				var arcend = segment.getEndPt(); //cant use the endpoint for circles
+				var clockwise = isClockwise( arcstart, arcmidpoint, arcend );
+				arcI = round(endx - startx, 3);
+				arcJ = round(endy - starty, 3);
+				arcRadius = round(segment.conicRadius, 3);
 								
 				if( clockwise > 0)
 					gx = "G2"; 
 				else
 					gx = "G3";
 
-				block = gx + " X" + arcEndX + " Y" + arcEndY + " R" + arcRadius;
+				block = gx + " X" + endx + " Y" + endy + " R" + arcRadius;
+			}
+			else if( segment.isCircle )
+			{
+				type = "Circle";
 			}
 			else if(segment.isEllipse)
 			{
-					alert( 'elipse' );
-			}
-			else if(segment.isLine || segment.isSimpleLine)
-			{
-				type = "Line";
-				gx = "G1";
-				block = gx + " X" + arcEndX + " Y" + arcEndY;	
-				//alert( "Seg " + j + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve);	
+				type = "Ellipse";
 			}
 			else
 			{
-				type = "Unknown";
-				gx = "G1";
-				block = gx + " X" + arcEndX + " Y" + arcEndY  + " (FIX ME)";	
-				//alert( "Seg " + j + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve);		
+				type = "Unknown";	
 			}
-			debug( "Seg " + j + "\nType: " + type + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve + "\nisClockwise2: " + clockwise );
+			//debug( "Seg " + j + "\nType: " + type + "\nStart: " + startx + "\nEnd: " + starty + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve + "\nisClockwise2: " + clockwise );
 			
-			note += "Start: " + segment.getStartPt() + " End: " + segment.getEndPt() + " ArcCenter: " + 
-					segment.conicFrame.origin;
+			//note += "Start: " + segment.getStartPt() + " End: " + segment.getEndPt() + " ArcCenter: " + 
+			//		segment.conicFrame.origin;
+			
 			gcode += block;
 			if (DEBUG)
 				gcode += " (Segment " + j + " => " + type + ") (" + note + ")";
@@ -217,11 +237,7 @@ function ArcCAM()
 	
 }
 
-function round( x, n )
-{
-	var a = Math.pow( 10, n );
-	return (Math.round( x * a ) / a).toFixed(3);
-	//return Math.round((n + Number.EPSILON) * 100) / 100
-}
 
-ArcCAM();
+
+PickCurve();
+//ArcCAM();
