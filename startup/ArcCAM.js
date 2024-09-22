@@ -88,7 +88,7 @@ function round( x, n )
 	//return Math.round((n + Number.EPSILON) * 100) / 100
 }
 
-function PickCurve()
+function ArcCAM()
 {
 	var objectpicker = moi.ui.createObjectPicker();
 	objectpicker.allowBReps();
@@ -238,6 +238,4 @@ function PickCurve()
 }
 
 
-
-PickCurve();
-//ArcCAM();
+ArcCAM();
