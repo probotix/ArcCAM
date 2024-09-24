@@ -5,7 +5,7 @@
 #include "GetObjects.js"
 #include "GetPoint.js"
 
-const DEBUG = false;
+const DEBUG = true;
 const ORIGIN_OFFSET = true;
 
 function dump(obj) {
@@ -164,8 +164,10 @@ function ArcCAM()
 			var type = "Line";
 			var startx = round(segment.getStartPt().x, 3);
 			var starty = round(segment.getStartPt().y, 3);
+			var startz = round(segment.getStartPt().z, 3);
 			var endx = round(segment.getEndPt().x, 3);
 			var endy = round(segment.getEndPt().y, 3);
+			var endz = round(segment.getEndPt().z, 3);
 			
 			if(ORIGIN_OFFSET)
 			{
@@ -183,7 +185,9 @@ function ArcCAM()
 			{
 				type = "Line";
 				gx = "G1";
-				block = gx + " X" + endx + " Y" + endy;		
+				block = gx + " X" + endx + " Y" + endy;
+				if(startz != endz)
+					block =+ " Z" + endz;
 			}
 			else if ( segment.isArc )
 			{
@@ -218,7 +222,7 @@ function ArcCAM()
 			{
 				type = "Unknown";	
 			}
-			//debug( "Seg " + j + "\nType: " + type + "\nStart: " + startx + "\nEnd: " + starty + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve + "\nisClockwise2: " + clockwise );
+			debug( "Seg " + j + "\nType: " + type + "\nStart: " + startx + "\nEnd: " + starty + "\nArcCenter: " + segment.conicFrame.origin + "\narcAngle: " + arcAngle + "\narcTangent: " + arcTangent + "\narcCurve: " + arcCurve + "\nisClockwise2: " + clockwise );
 			
 			//note += "Start: " + segment.getStartPt() + " End: " + segment.getEndPt() + " ArcCenter: " + 
 			//		segment.conicFrame.origin;
