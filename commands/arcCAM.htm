@@ -1,15 +1,136 @@
 <html>
+<script>
+var opt;
+function UpdateValues(opt)
+{
+	if(opt ==1)
+	{
+		scale.value=newD.value/oldD.value;
+	}else{
+		newD.value=oldD.value*scale.value;
+	}
+		alert(opt);
+}
+
+function round( x, n )
+{
+	var a = Math.pow( 10, n );
+	return (Math.round( x * a ) / a).toFixed(n);
+}
+
+function calculateTool()
+{
+	var sfm = tool_sfm.value;       
+	var diameter = tool_diameter.value;
+	var flutes = tool_flutes.value;
+	var ipt = tool_ipt.value;
+	var rpm = round( calculateRPM( sfm, diameter ), 0 );
+	var ipm = round( calculateIPM(flutes, ipt, rpm), 0 );
+	tool_rpm.value = rpm;
+	tool_ipm.value = ipm;
+}
+
+function calculateIPM(flutes, ipt, rpm) 
+{
+	var ipm = flutes * ipt * rpm;
+    return ipm
+}
+
+function calculateRPM(sfm, diameter) 
+{
+    var pi = Math.PI; // Pi constant
+    return (12 * sfm) / (pi * diameter);
+}
+
+</script>
+
+<style>
+th, td {
+  padding: 2px;
+}
+</style>
+
 	<body class="commandbody">
 		<div class="commandheader">
-			<div id="FirstSelectPrompt" class="commandprompt">Select Curve To Export<br>As G-code</div>
-			<div id="SecondSelectPrompt" class="hiddencommandprompt">Select Origin Point</div>
+			<div id="FirstSelectPrompt" class="commandprompt">
+				<strong>Choose Tool Path Type</strong>
+				<select id="ToolPathType" onchange="" style="widthxxx:100%" >
+					<option value="Profile">Profile</option>
+					<option value="Pocket">Pocket</option>
+					<option value="Center Drill">Center Drill</option>
+					<option value="Drill">Drill</option>
+					<option value="Peck Drill">Peck Drill</option>
+					<option value="Tap">Tap</option>
+				</select>
+				<moi:SmallBr /><moi:CommandDoneCancel />
+			</div>
+			<div id="SecondSelectPrompt" class="hiddencommandprompt"><strong>Tool Options</strong>
+				<table style="cellpadding: 15px">
+						<tr>
+							<td align="right"><nobr>Tool Diameter:</nobr></td>
+							<td align="left"><nobr><moi:DistanceInput id="tool_diameter" onInput="calculateTool()" style="width:4em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Num Flutes:</nobr></</td>
+							<td align="left"><moi:TextInput id="tool_flutes" onInput="calculateTool()" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>IPT:</nobr></td>
+							<td align="left"><moi:TextInput id="tool_ipt" onInput="calculateTool()" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>SFM:</nobr></td>
+							<td align="left"><moi:TextInput id="tool_sfm" onInput="calculateTool()" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>IPM:</nobr></td>
+							<td align="left"><moi:TextInput id="tool_ipm" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>RPM:</nobr></td>
+							<td align="left"><moi:TextInput id="tool_rpm" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right">Step-over:</nobr></td>
+							<td align="left"><nobr><moi:DistanceInput id="stepover" style="width:4em;"/></nobr></td>
+						</tr>	
+						
+						<!--<tr>
+							<td><td>Hole Type:</td>
+							<td><select id="hole_type" onchange="" style="widthxxx:100%" >
+									<option value="Thru Hole">Thru Hole</option>
+									<option value="Blind Hole">Blind Hole</option>
+									<option value="Tapped Hole">Tapped Hole</option>
+									<option value="Dowel Pin Slip Fit">Dowel Pin Slip Fit</option>
+									<option value="Dowel Pin Press Fit">Dowel Pin Press Fit</option>
+								</select>
+							</td>
+						</tr>-->
+				</table>
+				<moi:SmallBr /><moi:CommandDoneCancel />
+			</div>
+			<div id="ThirdSelectPrompt" class="hiddencommandprompt"><strong>Select Curve To Export<br>As G-code</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
+			<div id="FourthSelectPrompt" class="hiddencommandprompt"><strong>Select Origin Point</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
+		</div>
+
+		<div id="Options" class="hiddencommandoptions">
+
+			<hbox style="flex-wrap:wrap; align-items:baseline; padding:0.1em 0.2em">
+				<div><moi:Text textid="Dimension preset label"/></div>
+				<div style="padding-left:0.2em"><select id="AnnotationPreset" style="width:100%"></select></div>
+			</hbox>
+
+			<moi:PushButton id="FromObject"><moi:Text textid="Dim from object button"/></moi:PushButton>
+
+			<moi:CheckButton id="ProjectToCPlane" style="persist:false"><moi:Text textid="Dim project to cplane checkbox"/></moi:CheckButton>
+
 		</div>
 		
 		<!--<div class="commandoptions">
 			<moi:CheckButton id="unionsets"><moi:Text textid="BooleanIntersection union sets checkbox"/></moi:CheckButton>
 		</div>-->
 
-		<moi:CommandDoneCancel />
+		
 	</body>
 </html>
 
