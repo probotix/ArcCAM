@@ -5,7 +5,7 @@ var title4 = "FixCircles";
 var title5 = "SetCurveStart";
 var html='<moi:Spacer/>';
 
-moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:Spacer/><moi:CommandButton icon="icons/arcCAMIcon.png" command="arcCAM">ArcCAM</moi:/andButton>');
+moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:Spacer/><moi:CommandButton icon="icons/arcCAMIcon.png" command="arcCAM">&nbsp;&nbsp;&nbsp;&nbsp;ArcCAM&nbsp;&nbsp;&nbsp;&nbsp;</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/SetCurveStartIcon.png" command="SetCurveStart">SetCurveStart</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/OrderIcon.png" command="OrderCurves">OrderCurves</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/SetCirclesIcon.png" command="SetCircles">SetCircles</moi:/andButton>');
