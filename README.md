@@ -8,11 +8,10 @@
    	leveraging the advanced gcode controls used by modern CNC machines.
 	
 	I've included a slightly modified version of OrderCurves in this repository until I have that 
-	functionality built into ArcCAM. Hopefully Michael can help to figure out how to set the start point
-	with a pointpicker.
+	functionality built into ArcCAM. 
   
 	Features:
-	- Identify semicircles and use G2 and G3 arcs whenever possible
+	- Identify true arcs and use G2 and G3 arcs whenever possible
 	- Utilize the CNC controls built-in canned cycles (G8x), subroutines, and pocketing operations.
 	- Integrate tool diameter compensation (G41 & G42)
 	
