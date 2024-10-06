@@ -11,8 +11,8 @@ const DEBUG = true;
 const ORIGIN_OFFSET = true;
 const decimals = 3;
 
-filename = '/Users/lensh/Documents/log.txt';
-f2 = moi.filesystem.openFileStream( filename, 'w' );
+debug_filename = '/Users/lensh/Documents/log.txt';
+f2 = moi.filesystem.openFileStream( debug_filename, 'w' );
 
 filename = '/Users/lensh/Documents/test.nc'; // will not prompt for save file in debug mode
 //getFileNameFromPath
@@ -24,6 +24,7 @@ endcode = "M30\n%";
 preamble = "G0 G54 G90 G20 G17 G0 X0\n";
 gcode = "";
 tool_section = "";
+
 
 
 
@@ -94,18 +95,6 @@ function extractComments(str) {
     return matches ? matches : [];  // Return the matches or an empty array if no matches are found
 }
 
-function formatGcode( gcode )
-{
-	//gcode = gcode.replace(/\([^)]*\)/g, ''); //remove comments
-	gcode = gcode.replace(/ /g,''); // get rid of any whitespace
-	gcode = gcode.replace(/([A-Z])/g, ' $1'); //insert whitespace between capital letters
-	var pattern = new RegExp('\n ', 'g');
-	//gcode = gcode.replace(pattern, '\n'); //remove whitespace at beginning of lines
-	gcode = gcode.replace(/\n\s*/g, '\n'); // Removes \n followed by any whitespace
-	//undefined is not a constructor (evaluating 'gcode.replace(/^\s+/g,'')')
-	return gcode;
-}
-
 function addCommentBlock( comment )
 {
 	tool_section += "(" + comment + ")\n";
@@ -114,7 +103,7 @@ function addCommentBlock( comment )
 
 function addBlock( block )
 {
-	tool_section += block + "\n";
+	tool_section += formatGcode( block ) + "\n";
 	return;
 }
 
@@ -226,6 +215,106 @@ function ToolPathProfile( curves, origin )
 	addToolSection();
 }
 
+function ToolPathOffsetProfile( curves, origin )
+{
+	var gx = "G1";
+	var zdepth = -1.01;
+	var retract = 0.1;
+	var feed = "20.";
+
+	
+	addCommentBlock( "Offset Profile" );
+	var tool_preamble = "T1 M6\nG54 G90 G17 G0 X0 Y0\nM3 S6000\nG43 H1 Z1.0\n/M8";
+	addBlock( tool_preamble );
+	
+	for ( var i = 0; i < curves.length; i++ )
+	{
+		var segments = curves.item(i).getSubObjects();
+		
+		usertext = curves.item(i).getAllUserText();
+		for ( var u = 0; u < usertext.length; u++ )
+		{
+			debug( usertext.item(u).key + " => " + usertext.item(u).value + "\n");
+			gcode += "(" + usertext.item(u).key + " => " + usertext.item(u).value + ")\n"
+		}		
+	
+		for ( var j = 0; j < segments.length; j++ ) 
+		{
+			var block = "";
+	
+			var segment = segments.item(j);
+			var min = segment.domainMin;
+			var max = segment.domainMax;
+			var len = max - min;
+			
+			var type = "Line";
+			var startx = round(segment.getStartPt().x, decimals);
+			var starty = round(segment.getStartPt().y, decimals);
+			var startz = round(segment.getStartPt().z, decimals);
+			var endx = round(segment.getEndPt().x, decimals);
+			var endy = round(segment.getEndPt().y, decimals);
+			var endz = round(segment.getEndPt().z, decimals);
+			
+			if(ORIGIN_OFFSET)
+			{
+				startx = round( startx - origin.x, decimals );
+				starty = round( starty - origin.y, decimals );
+				startz = round( startz - origin.z, decimals );
+				endx = round( endx - origin.x, decimals );
+				endy = round( endy - origin.y, decimals );
+				endz = round( endz - origin.z, decimals );
+			}
+			
+			if( j == 0 )
+			{
+				addBlock( "G1 X" + startx  + " Y" + starty + " Z" + startz );
+			}
+			if( segment.isLine || segment.isSimpleLine )
+			{
+				type = "Line";
+				block = "G1";
+				//block = gx + " X" + endx + " Y" + endy;	
+				if( startx != endx )
+					block += " X" + endx;
+				if( starty != endy )
+					block += " Y" + endy;
+				if( startz != endz )
+					block += " Z" + endz;
+			}
+			else if ( segment.isArc )
+			{
+				type = "Arc";
+				var t = min + (3/3 * len);
+				var arcCurve = segment.evaluateCurvature( t );
+				var arcTangent = segment.evaluateTangent( t );	
+				var arcstart = segment.getStartPt();
+				var arcmidpoint = segment.evaluatePoint( min + (0.5 * len) );
+				var arcend = segment.getEndPt(); //cant use the endpoint for circles
+				var clockwise = isClockwise( arcstart, arcmidpoint, arcend );
+				arcI = round(endx - startx, decimals);
+				arcJ = round(endy - starty, decimals);
+				arcRadius = round(segment.conicRadius, decimals);
+								
+				if( clockwise > 0)
+					gx = "G2"; 
+				else
+					gx = "G3";
+
+				block = gx + "X" + endx + "Y" + endy + "R" + arcRadius;
+			}
+
+			debug( "Seg " + j + "\nType: " + type + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + " " + clockwise );
+			
+			//note += "Start: " + segment.getStartPt() + " End: " + segment.getEndPt() + " ArcCenter: " + 
+			//		segment.conicFrame.origin;
+			
+			addBlock( block );
+			//if (DEBUG)
+				//gcode += " (Segment " + j + " => " + type + ")";
+		}	
+	}
+	addToolSection();
+}
 
 function tooldata( diameter )
 {
@@ -241,14 +330,15 @@ function tooldata( diameter )
 	}
 }
 
+
+
 function ToolPathDrill( curves, origin )
 {
 	return;
 }
 
-function ToolPathCenterDrill( curves, origin )
+function ToolPathCannedCycle( type, curves, origin )
 {	
-	var gx = "G81";
 	var zdepth = -1.01;
 	var retract = 0.1;
 	var feed = "20.";
@@ -257,8 +347,29 @@ function ToolPathCenterDrill( curves, origin )
 	var prevz = "";
 	
 	addCommentBlock( "Center Drill" );
-	var tool_preamble = "T1 M6\nG54 G90 G17 G0 X0 Y0\nM3 S6000\nG43 H1 Z1.0\n/M8";
-	addBlock( tool_preamble );
+	addBlock( "T1 M6" );
+	addBlock( "G54 G90 G17 G0 X0 Y0" );
+	addBlock( "M3 S6000" );
+	addBlock( "G43 H1 Z1.0" );
+	addBlock( "/M8" );
+	
+	switch( type )
+	{
+		case "Center Drill":
+			var gx = "G81";
+			break;
+		case "Drill":
+			var gx = "G81";
+			break;
+		case "Peck Drill":
+			var gx = "G82";
+			break;
+		case "Tap":
+			var gx = "G84";
+			break;
+		default:
+			//alert('default');
+	}
 	
 	debug( curves.length + " Curves Selected");
 	const curves_array = [];
@@ -316,10 +427,9 @@ function ToolPathCenterDrill( curves, origin )
 			
 			if( diameter == current_drill )
 			{
-				var block = "";
 				if( j==0 ) //fix me
 				{
-					modalcode = "R" + retract + "F" + feed; 
+					var block = gx + " R" + retract + "F" + feed; 
 				}
 				
 				debug( k + " => " + curves_array[j] );
@@ -342,7 +452,7 @@ function ToolPathCenterDrill( curves, origin )
 					block += "Y" + centery;
 				if( centerz != prevz )
 					block += "Z" + zdepth		
-				block += modalcode;
+				
 				
 				prevx = centerx;
 				prevy = centery;
@@ -358,15 +468,8 @@ function ToolPathCenterDrill( curves, origin )
 
 function calculateTool()
 {
-	var sfm = moi.ui.commandUI.tool_sfm.value;       
-	var diameter = moi.ui.commandUI.tool_diameter.value;
-	var flutes = moi.ui.commandUI.tool_flutes.value;
-	var ipt = moi.ui.commandUI.tool_ipt.value;
-	var rpm = round( calculateRPM( sfm, diameter ), 0 );
-	var ipm = round( calculateIPM(flutes, ipt, rpm), 0 );
-	debug( "Diameter: " + diameter + "\nFlutes: " + flutes + "\nIPT: " + ipt + "\nSFM: " + sfm + "\nRPMs: " + rpm + "\nIPM: " + ipm);	
-	moi.ui.commandUI.tool_rpm.value = rpm;
-	moi.ui.commandUI.tool_ipm.value = ipm;
+
+		
 }
 
 function PickCurves()
@@ -385,10 +488,18 @@ function PickCurves()
 	
 	// tool options
 	
-	calculateTool();
-	
 	if ( !WaitForDialogDone() )
 		return;
+		    
+	var diameter = moi.ui.commandUI.tool_diameter.value;
+	var flutes = moi.ui.commandUI.tool_flutes.value;
+	var ipt = moi.ui.commandUI.tool_ipt.value;
+	var sfm = moi.ui.commandUI.tool_sfm.value; 
+	var ipm = moi.ui.commandUI.tool_ipm.value;
+	var rpm = moi.ui.commandUI.tool_rpm.value;
+	var stepover = moi.ui.commandUI.tool_stepover.value;
+	
+	debug( "Diameter: " + diameter + "\nFlutes: " + flutes + "\nIPT: " + ipt + "\nSFM: " + sfm + "\nRPMs: " + rpm + "\nIPM: " + ipm + "\nRPM: " + rpm + "\nStepover: " + stepover);
 	
 	moi.ui.beginUIUpdate();
 	moi.ui.hideUI( 'SecondSelectPrompt' );
@@ -405,9 +516,32 @@ function PickCurves()
 	
 	// pick curves
 	
+
+	switch( ToolPathType )
+	{
+		case "Profile":
+			break;
+		case "Offset Profile":
+			moi.ui.beginUIUpdate();
+			moi.ui.hideUI( 'ThirdSelectPrompt' );
+			moi.ui.showUI( 'OffsetProfileSelectPrompt' );
+			moi.ui.endUIUpdate();
+			if ( !WaitForDialogDone() )
+				return;
+			break;
+		case "Center Drill":
+		case "Drill":
+		case "Peck Drill":
+		case "Tap":
+			break;
+		default:
+			//alert('default');
+	}
+	
 	if(ORIGIN_OFFSET)
 	{
 		moi.ui.beginUIUpdate();
+		moi.ui.hideUI( 'OffsetProfileSelectPrompt' );
 		moi.ui.hideUI( 'ThirdSelectPrompt' );
 		moi.ui.showUI( 'FourthSelectPrompt' );
 		moi.ui.endUIUpdate();
@@ -432,17 +566,26 @@ function PickCurves()
 	if ( filename == '' )
 		return;
 		
-	switch( ToolPathType ){
+	switch( ToolPathType )
+	{
 		case "Profile":
 			ToolPathProfile( curves, origin );
 			break;
+		case "Offset Profile":
+			ToolPathOffsetProfile( curves, origin );
+			moi.ui.beginUIUpdate();
+			moi.ui.hideUI( 'FirstSelectPrompt' );
+			moi.ui.showUI( 'SecondSelectPrompt' );
+			moi.ui.endUIUpdate();
+			break;
 		case "Center Drill":
-			ToolPathCenterDrill( curves, origin );
 		case "Drill":
-			ToolPathDrill( curves, origin );
+		case "Peck Drill":
+		case "Tap":
+			ToolPathCannedCycle( ToolPathType, curves, origin );
+			break;
 		default:
 			//alert('default');
-			
 	}
 	
 	var f = moi.filesystem.openFileStream( filename, 'w' );	
@@ -454,6 +597,20 @@ function PickCurves()
 	if( DEBUG )
 		alert( filename + " Saved" );
 	
+}
+
+function formatGcode( gcode )
+{
+	
+	//gcode = gcode.replace(/\([^)]*\)/g, ''); //remove comments
+	gcode = gcode.replace(/ /g,''); // get rid of any whitespace
+	gcode = gcode.replace(/([A-Z])/g, ' $1'); //insert whitespace between capital letters
+	//var pattern = new RegExp('\n ', 'g');
+	//gcode = gcode.replace(pattern, '\n'); //remove whitespace at beginning of lines
+	gcode = gcode.replace(/^\s+/, '');
+	gcode = gcode.replace(/\n\s*/g, '\n'); // Removes \n followed by any whitespace
+	//undefined is not a constructor (evaluating 'gcode.replace(/^\s+/g,'')')
+	return gcode;
 }
 
 

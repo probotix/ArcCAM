@@ -1,4 +1,30 @@
+// config: norepeat
+
 #include "GetObjects.js"
+
+//filename = '/Users/lensh/Documents/log.txt';
+//f2 = moi.filesystem.openFileStream( filename, 'w' );
+
+
+function debug( msg )
+{
+	moi.log( msg + "\n" );
+	f2.writeLine( "--------------------------------\n" + msg + "\n" );
+}
+
+
+function findMidpoint(pointA, pointB) {
+    // pointA and pointB should be arrays or objects with x and y properties
+    var midX = (pointA[0] + pointB[0]) / 2;
+    var midY = (pointA[1] + pointB[1]) / 2;
+	var midZ = (pointA[2] + pointB[2]) / 2;
+
+    // Return the midpoint as an array
+    return [midX, midY, midZ];
+}
+
+
+
 
 function CreatePointObject( pt )
 {
@@ -10,7 +36,7 @@ function CreatePointObject( pt )
 	return pt;
 }
 
-function CreateArrow( base, dir )
+function CreateArrow( base_pt, dir_pt )
 {
 	var factory = null;
 
@@ -21,11 +47,22 @@ function CreateArrow( base, dir )
 	if ( !factory )
 		return null;
 
-	var end = moi.vectorMath.createPoint( base.x, base.y, base.z );
-	end.add( dir );
+	var end_pt = moi.vectorMath.createPoint( base_pt.x, base_pt.y, base_pt.z );
+	//var end_pt = moi.vectorMath.createPoint( findMidpoint( base_pt, dir_pt ) );
+	
+	dir_pt.scale(.2);
+	//debug( dir_pt.x + " " + dir_pt.y + " " + dir_pt.z );
+	
+	//debug( base_pt.x + " " + base_pt.y + " " + base_pt.z );
+	//dir_pt.x = 1;
+	//dir_pt.y = 1;
+	//dir_pt.z = 1;
+	end_pt.add( dir_pt );
+	
+	//debug( end_pt.x + " " + end_pt.y + " " + end_pt.z );
 
-	factory.setInput( 0, base );
-	factory.setInput( 1, end );
+	factory.setInput( 0, base_pt );
+	factory.setInput( 1, end_pt );
 	var arrow = factory.calculate().item(0);
 	arrow.setHitTest( false );
 	factory.cancel();
@@ -68,10 +105,10 @@ function UpdateDecorations( curves, points, dirs )
 			var max = seg.domainMax;
 			var len = max - min;
 
-			for ( var k = 0; k < 1; ++k ) // was 4
+			for ( var k = 0; k < 2; ++k ) // was 4
 			{
 				//var t = min + (k/3 * len);
-				var t = min + (3/3 * len);
+				var t = min + (k/3 * len);
 				var pt = seg.evaluatePoint( t );
 				var dir = seg.evaluateTangent( t );
 				//moi.ui.commandUI.alert( pt + "\n" + dir );
@@ -189,6 +226,7 @@ function DoOrderCurves()
 
 	Clear( curves );
 	UpdateDecorations( curves, points, dirs );
+	//f2.close();
 }
 
 DoOrderCurves();

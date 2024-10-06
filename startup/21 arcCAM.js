@@ -10,4 +10,6 @@ moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spac
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/OrderIcon.png" command="OrderCurves">OrderCurves</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/SetCirclesIcon.png" command="SetCircles">SetCircles</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/RepairCirclesIcon.png" command="RepairCircles">RepairCircles</moi:/andButton>');
-moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/PointIcon.png" command="_PointCoord">PointCoord</moi:/andButton>');
+moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/PointIcon.png" command="PointCoord">PointCoord</moi:/andButton>');
+moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="icons/LeadInOutIcon.png" command="CreateLeadInOut">LeadInOut</moi:/andButton>');
+

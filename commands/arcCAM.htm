@@ -56,6 +56,7 @@ th, td {
 				<strong>Choose Tool Path Type</strong>
 				<select id="ToolPathType" onchange="" style="widthxxx:100%" >
 					<option value="Profile">Profile</option>
+					<option value="Offset Profile">Offset Profile</option>
 					<option value="Pocket">Pocket</option>
 					<option value="Center Drill">Center Drill</option>
 					<option value="Drill">Drill</option>
@@ -92,7 +93,7 @@ th, td {
 						</tr>
 						<tr>
 							<td align="right">Step-over:</nobr></td>
-							<td align="left"><nobr><moi:DistanceInput id="stepover" style="width:4em;"/></nobr></td>
+							<td align="left"><nobr><moi:DistanceInput id="tool_stepover" style="width:4em;"/></nobr></td>
 						</tr>	
 						
 						<!--<tr>
@@ -111,6 +112,61 @@ th, td {
 			</div>
 			<div id="ThirdSelectPrompt" class="hiddencommandprompt"><strong>Select Curve To Export<br>As G-code</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
 			<div id="FourthSelectPrompt" class="hiddencommandprompt"><strong>Select Origin Point</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
+			<div id="DrillSelectPrompt" class="hiddencommandprompt"><strong>Drill Options</strong>
+				<table style="cellpadding: 15px">
+						<tr>
+							<td align="right"><nobr>Z Depth (Z):</nobr></td>
+							<td align="left"><nobr><moi:DistanceInput id="drill_depth" onInput="calculateTool()" style="width:4em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Retract Depth (R):</nobr></</td>
+							<td align="left"><moi:TextInput id="drill_retract_depth" onInput="calculateTool()" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Peck Depth (P):</nobr></td>
+							<td align="left"><moi:TextInput id="tool_peck_depth" onInput="calculateTool()" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Plunge Rate (F):</nobr></td>
+							<td align="left"><moi:TextInput id="tool_plunge_rate" onInput="calculateTool()" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Spindle Speed (S):</nobr></td>
+							<td align="left"><moi:TextInput id="tool_spindle_speed" style="width:4em;"/></td>
+						</tr>
+				</table>
+				<moi:SmallBr /><moi:CommandDoneCancel />
+			</div>
+			<div id="OffsetProfileSelectPrompt" class="hiddencommandprompt"><strong>Offset Options</strong>
+				<table style="cellpadding: 15px">
+						<tr>
+							<td align="right"><nobr>Lead-in Radius:</nobr></td>
+							<td align="left"><nobr><moi:DistanceInput id="leadin_radius" style="width:4em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Overlap:</nobr></td>
+							<td align="left"><nobr><moi:DistanceInput id="overlap" style="width:4em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Tool Diameter (D):</nobr></</td>
+							<td align="left"><moi:TextInput id=tool_d" style="width:4em;"/></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Offset:</nobr></td>
+							<td align="left">
+								<select id="hole_type" onchange="" style="widthxxx:100%" >
+									<option value="left">Left (G41)</option>
+									<option value="right">Right (G42)</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Z Steps:</nobr></td>
+							<td align="left"><moi:TextInput id="z_steps" style="width:4em;"/></td>
+						</tr>
+				</table>
+				<moi:SmallBr /><moi:CommandDoneCancel />
+			</div>
 		</div>
 
 		<div id="Options" class="hiddencommandoptions">
