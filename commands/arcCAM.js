@@ -339,6 +339,132 @@ function ToolPathOffsetProfile( curves, origin, offset, tool_offset_start, d_val
 	addToolSection();
 }
 
+
+
+
+function ToolPathHaasPocket( curves, origin, offset, tool_offset_start, d_value )
+{
+	var gx = "G1";
+	var zdepth = -1.01;
+	var retract = 0.1;
+	var feed = "20.";
+	
+	//alert( dump ( tool_offset_start ) );
+	//alert(offset);
+	
+	if( offset == 'left' )
+	{
+		g_offset = 'G41';
+	}
+	else if ( offset == 'right' )
+	{
+		g_offset = 'G42';
+	}
+
+	
+	addCommentBlock( "Offset Profile" );
+	var tool_preamble = "T1 M6\nG54 G90 G17 G0 X0 Y0\nM3 S6000\nG43 H1 Z1.0\n/M8";
+	addBlock( tool_preamble );
+	
+	for ( var i = 0; i < curves.length; i++ )
+	{
+		var segments = curves.item(i).getSubObjects();
+		
+		usertext = curves.item(i).getAllUserText();
+		for ( var u = 0; u < usertext.length; u++ )
+		{
+			debug( usertext.item(u).key + " => " + usertext.item(u).value + "\n");
+			gcode += "(" + usertext.item(u).key + " => " + usertext.item(u).value + ")\n"
+		}		
+	
+		for ( var j = 0; j < segments.length; j++ ) 
+		{
+			var block = "";
+	
+			var segment = segments.item(j);
+			var min = segment.domainMin;
+			var max = segment.domainMax;
+			var len = max - min;
+			
+			var type = "Line";
+			var startx = round(segment.getStartPt().x, decimals);
+			var starty = round(segment.getStartPt().y, decimals);
+			var startz = round(segment.getStartPt().z, decimals);
+			var endx = round(segment.getEndPt().x, decimals);
+			var endy = round(segment.getEndPt().y, decimals);
+			var endz = round(segment.getEndPt().z, decimals);
+			
+			if(ORIGIN_OFFSET)
+			{
+				startx = round( startx - origin.x, decimals );
+				starty = round( starty - origin.y, decimals );
+				startz = round( startz - origin.z, decimals );
+				endx = round( endx - origin.x, decimals );
+				endy = round( endy - origin.y, decimals );
+				endz = round( endz - origin.z, decimals );
+			}
+			
+			
+			if( j == 0 )
+			{
+				addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z );
+				addBlock( "G1 X" + startx  + " Y" + starty + " Z" + startz + g_offset + " D" + d_value );
+			}
+			if( segment.isLine || segment.isSimpleLine )
+			{
+				type = "Line";
+				block = "G1";
+				//block = gx + " X" + endx + " Y" + endy;	
+				if( startx != endx )
+					block += " X" + endx;
+				if( starty != endy )
+					block += " Y" + endy;
+				if( startz != endz )
+					block += " Z" + endz;
+			}
+			else if ( segment.isArc )
+			{
+				type = "Arc";
+				var t = min + (3/3 * len);
+				var arcCurve = segment.evaluateCurvature( t );
+				var arcTangent = segment.evaluateTangent( t );	
+				var arcstart = segment.getStartPt();
+				var arcmidpoint = segment.evaluatePoint( min + (0.5 * len) );
+				var arcend = segment.getEndPt(); //cant use the endpoint for circles
+				var clockwise = isClockwise( arcstart, arcmidpoint, arcend );
+				arcI = round(endx - startx, decimals);
+				arcJ = round(endy - starty, decimals);
+				arcRadius = round(segment.conicRadius, decimals);
+								
+				if( clockwise == 'cw')
+					gx = "G2"; 
+				else if( clockwise == 'ccw')
+					gx = "G3";
+				else
+					return;
+
+				block = gx + "X" + endx + "Y" + endy + "R" + arcRadius;
+			}
+
+			debug( "Seg " + j + "\nType: " + type + "\nStart: " + segment.getStartPt() + "\nEnd: " + segment.getEndPt() + "\nArcCenter: " + segment.conicFrame.origin + " " + clockwise );
+			
+			//note += "Start: " + segment.getStartPt() + " End: " + segment.getEndPt() + " ArcCenter: " + 
+			//		segment.conicFrame.origin;
+			
+			addBlock( block );
+			//if (DEBUG)
+				//gcode += " (Segment " + j + " => " + type + ")";
+		}	
+		
+		addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z + "G40" + " D50 ");
+	}
+	addToolSection();
+}
+
+
+
+
+
 function tooldata( diameter )
 {
 	var description = "";
@@ -546,6 +672,7 @@ function PickCurves()
 	{
 		case "Profile":
 			break;
+		case "Haas Pocket":
 		case "Offset Profile":
 			moi.ui.beginUIUpdate();
 			moi.ui.hideUI( 'CurveSelectPrompt' ); 	     		////////////// 3
@@ -595,7 +722,7 @@ function PickCurves()
 		moi.ui.hideUI( 'OffsetProfileSelectPrompt' );
 		moi.ui.hideUI( 'ToolPathTypeSelectPrompt' );
 		moi.ui.hideUI( 'ToolOffsetStartSelectPrompt' );
-		moi.ui.showUI( 'FourthSelectPrompt' );
+		moi.ui.showUI( 'OriginSelectPrompt' );
 		moi.ui.endUIUpdate();
 		
 		// pick origin
@@ -633,12 +760,9 @@ function PickCurves()
 		case "Profile":
 			ToolPathProfile( curves, origin );
 			break;
+		case "Haas Pocket":
 		case "Offset Profile":
 			ToolPathOffsetProfile( curves, origin, offset, tool_offset_start, tool_d_value );
-			moi.ui.beginUIUpdate();
-			moi.ui.hideUI( 'FirstSelectPrompt' );
-			moi.ui.showUI( 'SecondSelectPrompt' );
-			moi.ui.endUIUpdate();
 			break;
 		case "Center Drill":
 		case "Drill":
