@@ -190,15 +190,18 @@ function ToolPathProfile( curves, origin )
 				var arcmidpoint = segment.evaluatePoint( min + (0.5 * len) );
 				var arcend = segment.getEndPt(); //cant use the endpoint for circles
 				var clockwise = isClockwise( arcstart, arcmidpoint, arcend );
+				debug( "clockwise: " + clockwise );
 				arcI = round(endx - startx, decimals);
 				arcJ = round(endy - starty, decimals);
 				arcRadius = round(segment.conicRadius, decimals);
 								
-				if( clockwise > 0)
+				if( clockwise == 'cw')
 					gx = "G2"; 
-				else
+				else if( clockwise == 'ccw')
 					gx = "G3";
-
+				else
+					return;
+					
 				block = gx + "X" + endx + "Y" + endy + "R" + arcRadius;
 			}
 
