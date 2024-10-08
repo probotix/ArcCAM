@@ -1,0 +1,52 @@
+<html>
+	<body class="commandbody">
+		<div class="commandheader">
+			<div id="FirstSelectPrompt" class="commandprompt">
+				Pocketing Offset
+				
+				<table>
+					<tr>
+						<td align="right"><nobr>Tool Diameter:</nobr></td>
+						<td align="left"><nobr><moi:DistanceInput id="tool_diameter"/></td>
+					</tr>
+					<tr>
+						<td align="right"><nobr>Amt To Leave:</nobr></td>
+						<td align="left"><nobr><moi:DistanceInput id="toleave"/></nobr></td>
+					</tr>					
+					<tr>
+						<td align="right"><nobr>Step-over:</nobr></td>
+						<td align="left"><nobr><moi:DistanceInput id="stepover"/></nobr></td>
+					</tr>	
+					<tr>
+						<td align="right"><nobr>Number:</nobr></td>
+						<td align="left"><nobr><moi:TextInput id="num" style="width:4em;"/></nobr></td>
+					</tr>	
+					<!--<tr>
+						<td><td>Hole Type:</td>
+						<td><select id="hole_type" onchange="" style="widthxxx:100%" >
+								<option value="Thru Hole">Thru Hole</option>
+								<option value="Blind Hole">Blind Hole</option>
+								<option value="Tapped Hole">Tapped Hole</option>
+								<option value="Dowel Pin Slip Fit">Dowel Pin Slip Fit</option>
+								<option value="Dowel Pin Press Fit">Dowel Pin Press Fit</option>
+							</select>
+						</td>
+					</tr>-->
+				</table>
+				<moi:CommandDoneCancel />
+			</div>
+			
+			
+			
+			<div id="SecondSelectPrompt" class="hiddencommandprompt">
+				Choose Curve To Offset
+
+				<moi:CommandDoneCancel />
+			</div>
+			<div id="SecondSelectPrompt" class="hiddencommandprompt">Select Origin Point<moi:CommandDoneCancel /></div>
+		</div>
+
+
+		
+	</body>
+</html>

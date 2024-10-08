@@ -320,7 +320,7 @@ function createLeadInOut( curve, arc_distance, overlap, offset )
 		if( lead_in_out_radius >= radius )
 		{
 			alert("lead in radius too large for this segment");
-			return;
+			//return;
 		}
 		
 		
