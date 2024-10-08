@@ -218,12 +218,26 @@ function ToolPathProfile( curves, origin )
 	addToolSection();
 }
 
-function ToolPathOffsetProfile( curves, origin )
+
+
+function ToolPathOffsetProfile( curves, origin, offset, tool_offset_start, d_value )
 {
 	var gx = "G1";
 	var zdepth = -1.01;
 	var retract = 0.1;
 	var feed = "20.";
+	
+	//alert( dump ( tool_offset_start ) );
+	//alert(offset);
+	
+	if( offset == 'left' )
+	{
+		g_offset = 'G41';
+	}
+	else if ( offset == 'right' )
+	{
+		g_offset = 'G42';
+	}
 
 	
 	addCommentBlock( "Offset Profile" );
@@ -268,9 +282,11 @@ function ToolPathOffsetProfile( curves, origin )
 				endz = round( endz - origin.z, decimals );
 			}
 			
+			
 			if( j == 0 )
 			{
-				addBlock( "G1 X" + startx  + " Y" + starty + " Z" + startz );
+				addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z );
+				addBlock( "G1 X" + startx  + " Y" + starty + " Z" + startz + g_offset + " D" + d_value );
 			}
 			if( segment.isLine || segment.isSimpleLine )
 			{
@@ -298,10 +314,12 @@ function ToolPathOffsetProfile( curves, origin )
 				arcJ = round(endy - starty, decimals);
 				arcRadius = round(segment.conicRadius, decimals);
 								
-				if( clockwise > 0)
+				if( clockwise == 'cw')
 					gx = "G2"; 
-				else
+				else if( clockwise == 'ccw')
 					gx = "G3";
+				else
+					return;
 
 				block = gx + "X" + endx + "Y" + endy + "R" + arcRadius;
 			}
@@ -315,6 +333,8 @@ function ToolPathOffsetProfile( curves, origin )
 			//if (DEBUG)
 				//gcode += " (Segment " + j + " => " + type + ")";
 		}	
+		
+		addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z + "G40" + " D50 ");
 	}
 	addToolSection();
 }
@@ -485,8 +505,8 @@ function PickCurves()
 	// select toolpath type
 	
 	moi.ui.beginUIUpdate();
-	moi.ui.hideUI( 'FirstSelectPrompt' );
-	moi.ui.showUI( 'SecondSelectPrompt' );
+	moi.ui.hideUI( 'ToolPathTypeSelectPrompt' );     ////////////// 1
+	moi.ui.showUI( 'ToolOptionsSelectPrompt' );      ////////////// 2
 	moi.ui.endUIUpdate();
 	
 	// tool options
@@ -504,9 +524,11 @@ function PickCurves()
 	
 	debug( "Diameter: " + diameter + "\nFlutes: " + flutes + "\nIPT: " + ipt + "\nSFM: " + sfm + "\nRPMs: " + rpm + "\nIPM: " + ipm + "\nRPM: " + rpm + "\nStepover: " + stepover);
 	
+	
+	// pick curves
 	moi.ui.beginUIUpdate();
-	moi.ui.hideUI( 'SecondSelectPrompt' );
-	moi.ui.showUI( 'ThirdSelectPrompt' );
+	moi.ui.hideUI( 'ToolOptionsSelectPrompt' );     ////////////// 2
+	moi.ui.showUI( 'CurveSelectPrompt' );           ////////////// 3
 	moi.ui.endUIUpdate();
 	
 	var objectpicker = moi.ui.createObjectPicker();
@@ -517,7 +539,7 @@ function PickCurves()
 
 	var curves = objectpicker.objects;
 	
-	// pick curves
+	
 	
 
 	switch( ToolPathType )
@@ -526,11 +548,33 @@ function PickCurves()
 			break;
 		case "Offset Profile":
 			moi.ui.beginUIUpdate();
-			moi.ui.hideUI( 'ThirdSelectPrompt' );
-			moi.ui.showUI( 'OffsetProfileSelectPrompt' );
+			moi.ui.hideUI( 'CurveSelectPrompt' ); 	     		////////////// 3
+			moi.ui.showUI( 'OffsetProfileSelectPrompt' );       ////////////// 4
 			moi.ui.endUIUpdate();
 			if ( !WaitForDialogDone() )
+			
+			
+			moi.ui.beginUIUpdate();
+			moi.ui.hideUI( 'OffsetProfileSelectPrompt' );       ////////////// 4
+			moi.ui.showUI( 'ToolOffsetStartSelectPrompt' );     ////////////// 5
+			moi.ui.endUIUpdate();
+			
+			var offset = moi.ui.commandUI.offset_dir.value;
+			var tool_d_value = moi.ui.commandUI.tool_d_value.value;
+				//left (G41)</option>
+				//right (G42)</option>
+				
+			var pointpicker = moi.ui.createPointPicker();
+			if ( !GetPoint( pointpicker ) )
 				return;
+
+			var PickedPt = pointpicker.pt;	
+			var tool_offset_start = {};
+			tool_offset_start.x = round( PickedPt.X, decimals );
+			tool_offset_start.y = round( PickedPt.Y, decimals );
+			tool_offset_start.z = round( PickedPt.Z, decimals );
+			//alert( "tool_offset_start:\n" + dump( tool_offset_start ) );
+			
 			break;
 		case "Center Drill":
 		case "Drill":
@@ -541,11 +585,16 @@ function PickCurves()
 			//alert('default');
 	}
 	
+	
+	
+	
 	if(ORIGIN_OFFSET)
 	{
 		moi.ui.beginUIUpdate();
+		moi.ui.hideUI( 'CurveSelectPrompt' );
 		moi.ui.hideUI( 'OffsetProfileSelectPrompt' );
-		moi.ui.hideUI( 'ThirdSelectPrompt' );
+		moi.ui.hideUI( 'ToolPathTypeSelectPrompt' );
+		moi.ui.hideUI( 'ToolOffsetStartSelectPrompt' );
 		moi.ui.showUI( 'FourthSelectPrompt' );
 		moi.ui.endUIUpdate();
 		
@@ -556,10 +605,20 @@ function PickCurves()
 			return;
 
 		var PickedPt = pointpicker.pt;	
-		var originx = round( PickedPt.X, decimals )
-		var originy = round( PickedPt.Y, decimals )
-		var originz = round( PickedPt.Z, decimals )
-		const origin = {x:round( PickedPt.X, decimals ), y:round( PickedPt.Y, decimals ), z:round( PickedPt.Z, decimals )};
+		//var originx = round( PickedPt.X, decimals )
+		//var originy = round( PickedPt.Y, decimals )
+		//var originz = round( PickedPt.Z, decimals )
+		var origin = {};
+		origin.x = round( PickedPt.X, decimals );
+		origin.y = round( PickedPt.Y, decimals );
+		origin.z = round( PickedPt.Z, decimals );
+		//alert( "origin:\n" + dump( origin ) );
+	
+		tool_offset_start.x = round( tool_offset_start.x - origin.x, decimals );
+		tool_offset_start.y = round( tool_offset_start.y - origin.y, decimals );
+		tool_offset_start.z = round( tool_offset_start.z - origin.z, decimals );
+		//const origin = {x:round( PickedPt.X, decimals ), y:round( PickedPt.Y, decimals ), z:round( PickedPt.Z, decimals )};
+		//alert( "tool_offset_start:\n" + dump( tool_offset_start ) );
  	}
 	
 	if( !DEBUG )
@@ -575,7 +634,7 @@ function PickCurves()
 			ToolPathProfile( curves, origin );
 			break;
 		case "Offset Profile":
-			ToolPathOffsetProfile( curves, origin );
+			ToolPathOffsetProfile( curves, origin, offset, tool_offset_start, tool_d_value );
 			moi.ui.beginUIUpdate();
 			moi.ui.hideUI( 'FirstSelectPrompt' );
 			moi.ui.showUI( 'SecondSelectPrompt' );

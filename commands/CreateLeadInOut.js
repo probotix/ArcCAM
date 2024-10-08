@@ -305,6 +305,7 @@ function createLeadInOut( curve, arc_distance, overlap, offset )
 			var output_list = factory.calculate();
 			output_collector_leadout.addObject(output_list.item(0));
 			
+
 			
 	
 	}
@@ -383,6 +384,8 @@ function createLeadInOut( curve, arc_distance, overlap, offset )
 			factory.setInput( 4, false );
 			var output_list = factory.calculate();
 			output_collector_leadin.addObject(output_list.item(0));
+			
+
 
 	}		
 	if( last_segment.isArc )

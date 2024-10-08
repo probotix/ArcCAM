@@ -51,8 +51,9 @@ th, td {
 </style>
 
 	<body class="commandbody">
-		<div class="commandheader">
-			<div id="FirstSelectPrompt" class="commandprompt">
+	<center>
+		<div class="commandheader" style="padding: 0px">
+			<div id="ToolPathTypeSelectPrompt" class="commandprompt">
 				<strong>Choose Tool Path Type</strong>
 				<select id="ToolPathType" onchange="" style="widthxxx:100%" >
 					<option value="Profile">Profile</option>
@@ -65,11 +66,19 @@ th, td {
 				</select>
 				<moi:SmallBr /><moi:CommandDoneCancel />
 			</div>
-			<div id="SecondSelectPrompt" class="hiddencommandprompt"><strong>Tool Options</strong>
+			<div id="ToolOptionsSelectPrompt" class="hiddencommandprompt"><strong>Tool Options</strong>
 				<table style="cellpadding: 15px">
+						<tr>
+							<td align="right"><nobr>Tool Number (T):</nobr></td>
+							<td align="left"><nobr><moi:TextInput id="tool_number" style="width:4em;"/></nobr></td>
+						</tr>
 						<tr>
 							<td align="right"><nobr>Tool Diameter:</nobr></td>
 							<td align="left"><nobr><moi:DistanceInput id="tool_diameter" onInput="calculateTool()" style="width:4em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Tool Table Entry (D):</nobr></td>
+							<td align="left"><nobr><moi:TextInput id="tool_d_value" onInput="calculateTool()" style="width:4em;"/></nobr></td>
 						</tr>
 						<tr>
 							<td align="right"><nobr>Num Flutes:</nobr></</td>
@@ -110,8 +119,8 @@ th, td {
 				</table>
 				<moi:SmallBr /><moi:CommandDoneCancel />
 			</div>
-			<div id="ThirdSelectPrompt" class="hiddencommandprompt"><strong>Select Curve To Export<br>As G-code</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
-			<div id="FourthSelectPrompt" class="hiddencommandprompt"><strong>Select Origin Point</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
+			<div id="CurveSelectPrompt" class="hiddencommandprompt"><strong>Select Curve To Export<br>As G-code</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
+			<div id="OriginSelectPrompt" class="hiddencommandprompt"><strong>Select Origin Point</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
 			<div id="DrillSelectPrompt" class="hiddencommandprompt"><strong>Drill Options</strong>
 				<table style="cellpadding: 15px">
 						<tr>
@@ -138,7 +147,7 @@ th, td {
 				<moi:SmallBr /><moi:CommandDoneCancel />
 			</div>
 			<div id="OffsetProfileSelectPrompt" class="hiddencommandprompt"><strong>Offset Options</strong>
-				<table style="cellpadding: 15px">
+				<table style="cellpadding: 0px">
 						<tr>
 							<td align="right"><nobr>Lead-in Radius:</nobr></td>
 							<td align="left"><nobr><moi:DistanceInput id="leadin_radius" style="width:4em;"/></nobr></td>
@@ -147,14 +156,12 @@ th, td {
 							<td align="right"><nobr>Overlap:</nobr></td>
 							<td align="left"><nobr><moi:DistanceInput id="overlap" style="width:4em;"/></nobr></td>
 						</tr>
-						<tr>
-							<td align="right"><nobr>Tool Diameter (D):</nobr></</td>
-							<td align="left"><moi:TextInput id=tool_d" style="width:4em;"/></td>
-						</tr>
+				</table>
+				<table style="cellpadding: 0px">
 						<tr>
 							<td align="right"><nobr>Offset:</nobr></td>
 							<td align="left">
-								<select id="hole_type" onchange="" style="widthxxx:100%" >
+								<select id="offset_dir" onchange="" style="widthxxx:100%" >
 									<option value="left">Left (G41)</option>
 									<option value="right">Right (G42)</option>
 								</select>
@@ -168,7 +175,13 @@ th, td {
 				<moi:SmallBr /><moi:CommandDoneCancel />
 			</div>
 		</div>
-
+		
+		
+		
+		<div id="ToolOffsetStartSelectPrompt" class="hiddencommandprompt"><strong>Select Tool Offset<br>Starting Point</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
+		
+		
+		
 		<div id="Options" class="hiddencommandoptions">
 
 			<hbox style="flex-wrap:wrap; align-items:baseline; padding:0.1em 0.2em">
@@ -186,7 +199,7 @@ th, td {
 			<moi:CheckButton id="unionsets"><moi:Text textid="BooleanIntersection union sets checkbox"/></moi:CheckButton>
 		</div>-->
 
-		
+	</center>	
 	</body>
 </html>
 
