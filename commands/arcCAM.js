@@ -334,7 +334,7 @@ function ToolPathOffsetProfile( curves, origin, offset, tool_offset_start, d_val
 				//gcode += " (Segment " + j + " => " + type + ")";
 		}	
 		
-		addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z + "G40" + " D50 ");
+		addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z + "G40");
 	}
 	addToolSection();
 }
@@ -456,7 +456,7 @@ function ToolPathHaasPocket( curves, origin, offset, tool_offset_start, d_value 
 				//gcode += " (Segment " + j + " => " + type + ")";
 		}	
 		
-		addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z + "G40" + " D50 ");
+		addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z + "G40");
 	}
 	addToolSection();
 }
@@ -687,6 +687,7 @@ function PickCurves()
 			moi.ui.endUIUpdate();
 			
 			var offset = moi.ui.commandUI.offset_dir.value;
+			
 			var tool_d_value = moi.ui.commandUI.tool_d_value.value;
 				//left (G41)</option>
 				//right (G42)</option>
@@ -694,7 +695,8 @@ function PickCurves()
 			var pointpicker = moi.ui.createPointPicker();
 			if ( !GetPoint( pointpicker ) )
 				return;
-
+			var g92_offset = moi.ui.commandUI.g92_offset.value;
+			
 			var PickedPt = pointpicker.pt;	
 			var tool_offset_start = {};
 			tool_offset_start.x = round( PickedPt.X, decimals );
