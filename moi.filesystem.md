@@ -1,5 +1,3 @@
-# moi.filesystem
-
 # Moi3D Filesystem Functions
 
 **moi.filesystem.incrementFileName( filename );**  
@@ -62,4 +60,61 @@ Filter can be a semicolon-delimited list of filters.
 Returns `true` if the given file exists.  
 
 **moi.filesystem.dirExists( filename );**  
+Returns `true` if the given directory exists.  
 
+**moi.filesystem.shellExecute( Path, Parameters, WaitForFinished );**  
+- Arg 1 (required) - path to file. Could be an executable or a data file which will  
+  open it in whatever the OS has registered to handle that file extension type.  
+- If given an executable program file, command line parameters can be given by  
+  optional Arg2, and if Arg3 is `true` it will wait for the launched program to finish  
+  before returning from `shellExecute()`.  
+- When using `WaitForFinished`, the return value is a dictionary object with `exitCode` and `output` properties.  
+  `exitCode` contains the numeric exit code value and `output` contains any text written to stdout.  
+
+**moi.filesystem.deleteFile( path );**  
+Deletes the given file.  
+
+**moi.filesystem.copyFile( ExistingPath, NewPath, FailIfExists );**  
+- Required Args 1 and 2 give the path to the existing file, and the  
+  path to the new file.  
+- `FailIfExists` is an optional value. If set to `true`, the operation will not overwrite an existing file.  
+  Default is `false`.  
+
+**moi.filesystem.getProcessDir();**  
+Returns path to where application binaries are installed.  
+On Windows, returns the path to where `MoI.exe` is located.  
+On Mac, returns the full path to `/Contents/Resources/` inside the app bundle.  
+
+**moi.filesystem.getTempDir();**  
+Returns path to the TEMP folder.  
+
+**moi.filesystem.getAppDataDir();**  
+Returns path to the Moi AppData folder.  
+On Windows this is: `%AppData%\Moi`, and on Mac  
+it's `~/Library/Application Support/Moi`.  
+
+**moi.filesystem.getUIDir();**  
+Returns path to the UI folder inside the install directory.  
+
+**moi.filesystem.getCommandsDir();**  
+Returns path to the Commands folder inside the install directory.  
+
+**moi.filesystem.toNativePath( filename );**  
+Given a script path (using `z:\` on Mac) returns native OS path.  
+
+**moi.filesystem.toScriptPath( filename );**  
+Given a native OS path converts it to a script path.  
+
+---
+
+### The FileStream Object
+
+The `FileStream` object has these functions:
+
+- `.readLine()` - reads a line of text from the stream, the text is the return value of the function.
+- `.writeLine( text )` - writes a line of text to the stream.
+- `.atEOF` property - returns `true` if the stream is at the end with nothing more to read from it.
+- `.close()` - closes the stream.
+- `.setWriteBOM()` - sets whether to write the byte order mark at the front of the text file, default is no BOM.
+- `.setCodec( name )` - controls the encoding to use for reading or writing. Supported codecs are listed here:  
+  [Qt Documentation on QTextCodec](http://doc.qt.io/qt-5/qtextcodec.html#details)
