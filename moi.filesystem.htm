@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Moi3D Filesystem Functions</title>
+</head>
+
+<body>
+moi.filesystem.<strong>incrementFileName</strong>( filename );<br>
+Increment a file name. For example File01.txt becomes File02.txt .<br>
+Arg1 = input filename.<br>
+Return value = incremented filename.<br>
+<br>
+moi.filesystem.<strong>getCompactPath</strong>( filename );<br>
+Arg1 = Input filename.<br>
+Arg2 = Target number of characters to try and fit.<br>
+Return value = filename with paths removed if full path exceeds target limit.<br>
+<br>
+moi.filesystem.<strong>getFileNameFromPath</strong>( fullpath );<br>
+Arg1 = filename with full path<br>
+Return value = just the file name portion of the path, no directory.<br>
+<br>
+moi.filesystem.<strong>getOpenFileName</strong>( DialogTitle, Filters );<br>
+Function for a script to be able to show the open file name dialog.<br>
+The filter string has entries separated by the pipe | character, with<br>
+the entries in pairs with a label first and then a filter next, for example:<br>
+'Point files (*.txt, *.xyz, *.csv)|*.txt;*.xyz;*.csv|All files (*.*)|*.*'<br>
+returns filename or empty string if dialog was canceled.<br>
+<br>
+moi.filesystem.<strong>getSaveFileName</strong>( DialogTitle, Filters );<br>
+Function for a script to be able to show the save file name dialog.<br>
+The filter string has entries separated by the pipe | character, with<br>
+the entries in pairs with a label first and then a filter next, for example:<br>
+'Point files (*.txt, *.xyz, *.csv)|*.txt;*.xyz;*.csv|All files (*.*)|*.*'<br>
+returns empty string if dialog was canceled.<br>
+<br>
+moi.filesystem.<strong>getPathDelimiter</strong>();<br>
+Returns the native path delimiter for the OS. For Windows it's \ on Mac it's /.<br>
+It's usually possible to write cross platform code without using this because<br>
+on Mac script functions that take file names will accept Windows like path names<br>
+using z:\<br>
+<br>
+moi.filesystem.<strong>processFileNameToUI</strong>( scriptpath );<br>
+Given a script path, return the native path to be used for showing in any UI controls.<br>
+<br>
+moi.filesystem.<strong>processFileNameFromUI</strong>( nativepath );<br>
+Given a native path, return the script path.<br>
+<br>
+moi.filesystem.<strong>openFileStream</strong>( filename, mode );<br>
+Creates a file stream object that can read or write content to the given filename.<br>
+Mode can be 'r' for read, or 'w' for write.<br>
+<br>
+moi.filesystem.<strong>getFiles</strong>( path, filter );<br>
+Given a directory name and a filter string, return a list of files within that directory.<br>
+For example: var files = moi.filesystem.getFiles( 'c:\\scripts\\iges', '*.igs' );<br>
+Filter can be a semi-colon delimited list of filters.<br>
+<br>
+moi.filesystem.<strong>getDirs</strong>( path, filter );<br>
+Given a directory name and an optional filter string, return a list of sub-directories within that directory.<br>
+For example: var dirs = moi.filesystem.getDirs( 'c:\\', 'p*' );<br>
+Filter can be a semi-colon delimited list of filters.<br>
+<br>
+moi.filesystem.<strong>fileExists</strong>( filename );<br>
+Returns true if the given file exists.<br>
+<br>
+moi.filesystem.<strong>dirExists</strong>( filename );<br>
+Returns true if the given directory exists.<br>
+<br>
+moi.filesystem.<strong>shellExecute</strong>( Path, Parameters, WaitForFinished );<br>
+Arg 1 (required) - path to file. Could be an executable or a data file which will<br>
+then open it up in whatever the OS has registered to handle that file extension type.<br>
+If given an executable program file, command line parameters can be given by<br>
+optionsl Arg2, and if Arg3 is true it will wait for the launched program to finish<br>
+before returning from shellExecute(). When using WaitForFinished, the return value<br>
+is a dictionary object with exitCode and output properties on it. exitCode contains<br>
+the numeric exit code value and output contains any text written to stdout.<br>
+<br>
+moi.filesystem.<strong>deleteFile</strong>( path );<br>
+Deletes the given file.<br>
+<br>
+moi.filesystem.<strong>copyFile</strong>( ExistingPath, NewPath, FailIfExists );<br>
+Required Args 1 and 2 give the path to the existing file, and the<br>
+path to the new file. FailIfExists is an optional value, if set to<br>
+true the operation will not overwrite an existing file. Default is false.<br>
+<br>
+moi.filesystem.<strong>getProcessDir</strong>();<br>
+Returns path to where application binaries are installed. On Windows returns the path<br>
+to where MoI.exe is located. On Mac, returns the full path to /Contents/Resources/<br>
+inside the app bundle.<br>
+<br>
+moi.filesystem.<strong>getTempDir</strong>();<br>
+Returns path to the TEMP folder.<br>
+<br>
+moi.filesystem.<strong>getAppDataDir</strong>();<br>
+Returns path to the Moi AppData folder. On Windows this is: %AppData%\Moi, on Mac<br>
+it's ~/Library/Application Support/Moi.<br>
+<br>
+moi.filesystem.<strong>getUIDir</strong>();<br>
+Returns path to the UI folder inside the install dir.<br>
+<br>
+moi.filesystem.<strong>getCommandsDir</strong>();<br>
+Returns path to the Commands folder inside the install dir.<br>
+<br>
+moi.filesystem.<strong>toNativePath</strong>( filename );<br>
+Given a script path (using z:\ on Mac) returns native OS path.<br>
+<br>
+moi.filesystem.<strong>toScriptPath</strong>( filename );<br>
+Given a native OS path converts it to a script path.<br>
+<br>
+<br>
+<br>
+The Filestream object has these functions:<br>
+<br>
+.readLine() - reads a line of text from the stream, the text is the return value of the function.<br>
+<br>
+.writeLine( text ) - writes a line of text to the stream.<br>
+<br>
+.atEOF property - returns true if the stream is at the end with nothing more to read from it.<br>
+<br>
+.close() - closes the stream.<br>
+<br>
+.setWriteBOM( ) - sets whether to write the byte order mark at the front of the text file, default is no BOM.<br>
+<br>
+.setCodec( name ) - controls the encoding to use for reading or writing. Supported codecs are listed here: <a href="http://doc.qt.io/qt-5/qtextcodec.html#details">http://doc.qt.io/qt-5/qtextcodec.html#details</a>
+</body>
+</html>
