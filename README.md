@@ -26,22 +26,16 @@
 
 # Installation
 
-	1. Copy the "Death UI.rar" file to the "C:\users\YOUR WINDOWS USERNAME HERE\AppData\moi" directory. You should see it and the license files, nothing more.
+	1. Copy the "ArcCAM.zip" file to the "C:\users\YOUR WINDOWS USERNAME HERE\AppData\Roaming\Moi" directory.
 
-	2. Right click the Death UI.rar file and select "Extract Here" from the pop-up menu.
+	2. Right click the ArcCAM.zip file and select "Extract Here" from the pop-up menu.
 		This extracts your updated Moi directory with everything need.
 
-	3. Delete the "Death UI.rar" file, it is not need anymore and just takes up the space here.
+	3. Delete the "ArcCAM.zip" file, it is not needed anymore and just takes up the space here.
 
 	4. Edit the moi.ini file. You need to change the entry under "[Commands]" to point to your path. Change the
-			"AdditionalCommandsDirs=C:\Users\Jack\AppData\Roaming\MoI\extras"
-		to:
-			"AdditionalCommandsDirs=C:\Users\YOUR WINDOWS USERNAME\AppData\Roaming\MoI\extras"
+			"AdditionalCommandsDirs=C:\Users\YOUR WINDOWS USERNAME HERE\AppData\Roaming\MoI\ArcCAM"
 
-		This will enable the EXTRAS scripts within Moi for you.
-
-	5.) copy the "Reverse.png" image from the new "C:\Users\YOUR WINDOWS USERNAME\AppData\Roaming\MoI\ui" to the:
-		"C:\Program Files\Moi 4.0\ui" directory
 
 
 
