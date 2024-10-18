@@ -1,0 +1,163 @@
+<html>
+	<head>
+		<title>ArcCAM Tool Table</title>
+		
+		<style>
+			moi\:TabButton {
+				display:block;
+				padding:0.3em 1em 0.3em 0.5em;
+				font-size:105%;
+				text-align:left;
+				
+				border:1px solid transparent;
+				border-top-left-radius:5px;
+				border-bottom-left-radius:5px;
+
+				background:none;
+				
+				position:relative;
+				left:1px;
+				z-index:1;
+			}
+			
+			moi\:TabButton.active {
+				background:none;
+				border-color:$$OPTIONS_DIALOG_OUTLINE_COLOR$$;
+				border-right-color:$$DIALOG_BACKGROUND_COLOR$$;
+			}
+
+			moi\:TabButton > div.tab_button_activedot {
+				display:none;
+			}
+			
+			#TabContainer {
+				margin-top:0.5em;
+				flex-shrink:0;
+				border:none;
+				border-radius:0;
+				overflow:visible;
+			}
+
+			#UpperContainer {
+				flex-shrink:1;
+				min-height:14em;
+			}
+
+			#FrameContainer {
+				padding:5px 10px;
+				border:1px solid $$OPTIONS_DIALOG_OUTLINE_COLOR$$;
+				overflow:auto;
+			}
+
+			iframe {
+				width:100%;
+				display:block;
+				border:none;
+			}
+		</style>
+		
+		<script>
+			var g_LoadingFrame = null;
+			var g_LoadedFrame = null;
+		
+			function RemoveFrame( frame )
+			{
+				frame.parentNode.removeChild( frame );
+			}
+		
+			function OnFrameLoaded()
+			{
+				// When the frame is finished loading, remove any previous one and set the
+				// new one to be displayed.
+			
+				var startframe = document.getElementById('StartFrame');
+				if ( startframe )
+					RemoveFrame( startframe );
+					
+				if ( g_LoadedFrame != null )
+					RemoveFrame( g_LoadedFrame );
+
+				if ( g_LoadingFrame != null )
+					g_LoadingFrame.style.display = '';
+					
+				g_LoadedFrame = g_LoadingFrame;
+				g_LoadingFrame = null;
+
+				// Force a layout now to avoid a bogus hover element getting set in the iframe.
+				g_Height = document.body.offsetHeight;
+			}
+		
+			function Update()
+			{
+				// Load the document corresponding to the active tab.
+				if ( g_LoadingFrame != null )
+					RemoveFrame( g_LoadingFrame );
+					
+				g_LoadingFrame = document.createElement('IFRAME');
+				g_LoadingFrame.style.display = 'none';
+				g_LoadingFrame.src = 'moi://AppData/ArcCAM/' + TabContainer.activeTab + '.htm';
+				//g_LoadingFrame.src = 'https://www.probotix.com';
+				g_LoadingFrame.onload = OnFrameLoaded;
+				
+				FrameContainer.appendChild( g_LoadingFrame );
+			}
+			
+			function Initialize()
+			{
+				var InitTab = 'General';
+
+				try { InitTab = moi.command.getOption( 'Options.htm_lastused' ); }
+				catch(e) { }
+
+				TabContainer.activeTab = InitTab;
+			}
+			
+			function Shutdown()
+			{
+				// Remember the active tab.
+				moi.command.setOption( 'Options.htm_lastused', TabContainer.activeTab );
+			}
+			
+			function RestoreDefaults()
+			{
+				// Show the restore default dialog so we can determine if we should restore
+				// all settings or just the ones for the current tab.
+					
+				var dialog = moi.ui.createDialog( 'RestoreDefaultsDialog.htm', '', moiWindow );
+				var result = dialog.window.doModal();
+				
+				if ( result == 'all' )
+					moi.settings.restoreDefaults( 'all' );
+				else if ( result == 'current' )
+					moi.settings.restoreDefaults( TabContainer.activeTab );
+			}
+		</script>
+	</head>
+
+	<body class="DialogBody vbox" onload="Initialize();" onunload="Shutdown();">
+
+		<flex_hbox id="UpperContainer">
+			<moi:TabContainer id="TabContainer" ontabchange="Update();">
+				<moi:TabButton id="Test">TEST</moi:TabButton>
+				<moi:TabButton id="General"><moi:Text textid="Options general tab"/></moi:TabButton>
+				<moi:TabButton id="ShortcutKeys"><moi:Text textid="Options shortcut keys tab"/></moi:TabButton>
+				<moi:TabButton id="View"><moi:Text textid="Options view tab"/></moi:TabButton>
+				<moi:TabButton id="Grid"><moi:Text textid="Options grid tab"/></moi:TabButton>
+				<moi:TabButton id="Snaps"><moi:Text textid="Options snaps tab"/></moi:TabButton>
+				<moi:TabButton id="ImportExport"><moi:Text textid="Options import/export tab"/></moi:TabButton>
+				<moi:TabButton id="Dimensions"><moi:Text textid="Options dimensions tab"/></moi:TabButton>
+			</moi:TabContainer>
+
+			<flex_hbox id="FrameContainer">
+				<iframe id="StartFrame" class="flex"></iframe>
+			</flex_hbox>
+		</flex_hbox>
+		
+		<div style="text-align:right; white-space:nowrap; flex-shrink:0;">
+			<moi:PushButton class="dialogokcancelbtn" onclick="RestoreDefaults();"><moi:Text textid="Restore defaults button"/></moi:PushButton>
+			<moi:Spacer />
+			<moi:PushButton id="DialogClose" class="dialogokcancelbtn" onclick="moiWindow.endDialog(0);"><moi:Text textid="Dialog close button"/></moi:PushButton>
+		</div>
+		
+	</body>
+</html>
