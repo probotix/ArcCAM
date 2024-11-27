@@ -27,7 +27,8 @@
 
 # Installation
 
-	1. Copy the "ArcCAM-main.zip" file to the "C:\users\YOUR WINDOWS USERNAME HERE\AppData\Roaming\Moi" directory.
+	1. Copy the "ArcCAM-main.zip" file to the "C:\users\YOUR WINDOWS USERNAME HERE\AppData\Roaming\Moi" 
+ 	directory.
 
 	2. Right click the ArcCAM-main.zip file and select "Extract Here" from the pop-up menu.
 		This extracts your updated Moi directory with everything need.
@@ -35,7 +36,7 @@
 	3. Delete the "ArcCAM-main.zip" file, it is not needed anymore and just takes up the space here.
 
 	4. Edit the moi.ini file. You need to change the entry under "[Commands]" to point to your path. Change 
-		"AdditionalCommandsDirs=C:\Users\YOUR WINDOWS USERNAME HERE\AppData\Roaming\MoI\ArcCAM"
+	"AdditionalCommandsDirs=C:\Users\YOUR WINDOWS USERNAME HERE\AppData\Roaming\MoI\ArcCAM"
 
 
 
