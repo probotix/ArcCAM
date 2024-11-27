@@ -22,6 +22,7 @@
 
 # Changelog
 - First crack. Able to generate simple tool paths for import into Haas CNC controls.
+- Added PlasmaCAM plasma table script
    
 
 # Installation
