@@ -13,4 +13,5 @@ moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spac
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/PointCoordsIcon.png" command="PointCoord">PointCoord</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/LeadInOutIcon.png" command="CreateLeadInOut">LeadInOut</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/PocketOffsetIcon.png" command="PocketOffset">PocketOffset</moi:/andButton>');
+moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/PlasmaCAMIcon.png" command="PlasmaCAM">PlasmaCAM</moi:/andButton>');
 
