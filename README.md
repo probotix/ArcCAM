@@ -35,8 +35,9 @@
 
 	3. Delete the "ArcCAM-main.zip" file, it is not needed anymore and just takes up the space here.
 
-	4. Edit the moi.ini file. You need to change the entry under "[Commands]" to point to your path. Change 
-	"AdditionalCommandsDirs=C:\Users\YOUR WINDOWS USERNAME HERE\AppData\Roaming\MoI\ArcCAM"
+	4. Edit the moi.ini file. You need to change the entry under "[Commands]" to point to your path. 
+ 	Change:
+		"AdditionalCommandsDirs=C:\Users\YOUR WINDOWS USERNAME HERE\AppData\Roaming\MoI\ArcCAM"
 
 
 
