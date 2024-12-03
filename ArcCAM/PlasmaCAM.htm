@@ -20,198 +20,25 @@ th, td {
 				<table style="cellpadding: 0px">
 						<tr>
 							<td align="right"><nobr>File Name:</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="file_name" default="plasmacam" style="width:8em;"/></nobr></td>
+							<td align="left"><nobr><moi:TextInput id="file_name" default="plasmacam" style="width:6em;"/></nobr></td>
 						</tr>
 						<tr>
 							<td align="right"><nobr>Comment:</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="file_comment" default="PlasmaCAM" style="width:8em;"/></nobr></td>
+							<td align="left"><nobr><moi:TextInput id="file_comment" default="PlasmaCAM" style="width:6em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Start Delay:</nobr></td>
+							<td align="left"><nobr><moi:NumericInput id="start_delay" default="1.2" style="width:3em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Feed Rate:</nobr></td>
+							<td align="left"><nobr><moi:NumericInput id="feedrate" default="40" style="width:3em;"/></nobr></td>
 						</tr>
 				</table>
 				<moi:SmallBr /><moi:CommandDoneCancel />
 				</center>
 			</div>
-			<div id="ToolOptionsSelectPrompt" class="hiddencommandprompt"><strong>Tool Options</strong>
-				<table style="cellpadding: 15px">
-						<tr>
-							<td align="right"><nobr>Tool Number (T):</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="tool_number" style="width:4em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Tool Diameter:</nobr></td>
-							<td align="left"><nobr><moi:DistanceInput id="tool_diameter" onInput="calculateTool()" style="width:4em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Tool Table Entry (D):</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="tool_d_value" onInput="calculateTool()" style="width:4em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Num Flutes:</nobr></</td>
-							<td align="left"><moi:TextInput id="tool_flutes" onInput="calculateTool()" style="width:4em;"/></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>IPT:</nobr></td>
-							<td align="left"><moi:TextInput id="tool_ipt" onInput="calculateTool()" style="width:4em;"/></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>SFM:</nobr></td>
-							<td align="left"><moi:TextInput id="tool_sfm" onInput="calculateTool()" style="width:4em;"/></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>IPM:</nobr></td>
-							<td align="left"><moi:TextInput id="tool_ipm" style="width:4em;"/></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>RPM:</nobr></td>
-							<td align="left"><moi:TextInput id="tool_rpm" style="width:4em;"/></td>
-						</tr>
-						<tr>
-							<td align="right">Step-over:</nobr></td>
-							<td align="left"><nobr><moi:DistanceInput id="tool_stepover" style="width:4em;"/></nobr></td>
-						</tr>	
-						
-						<!--<tr>
-							<td><td>Hole Type:</td>
-							<td><select id="hole_type" onchange="" style="widthxxx:100%" >
-									<option value="Thru Hole">Thru Hole</option>
-									<option value="Blind Hole">Blind Hole</option>
-									<option value="Tapped Hole">Tapped Hole</option>
-									<option value="Dowel Pin Slip Fit">Dowel Pin Slip Fit</option>
-									<option value="Dowel Pin Press Fit">Dowel Pin Press Fit</option>
-								</select>
-							</td>
-						</tr>-->
-				</table>
-				<moi:SmallBr /><moi:CommandDoneCancel />
-			</div>
-			
-			
-			
-			<div id="CurveSelectPrompt" class="hiddencommandprompt"><strong>Select Curve To Export<br>As G-code</strong><moi:SmallBr /><moi:CommandDoneCancel /></div>
-			
-			
-			
-			<div id="OriginSelectPrompt" class="hiddencommandprompt">
-				<strong>Select Origin Point</strong><moi:SmallBr />
-				<table style="cellpadding: 0px">
-						<tr>
-							<td align="right"><nobr>Coordinate System:</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="coordinate_system" style="width:4em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="center" colspan="2"><moi:CheckButton id="g92_offset">Use G92 Offset</moi:CheckButton></td>
-						</tr>
-					</table>
-					<moi:CommandDoneCancel />
-			</div>
-			
-			
-			
-			<div id="DrillSelectPrompt" class="hiddencommandprompt"><strong>Drill Options</strong>
-				<table style="cellpadding: 15px">
-						<tr>
-							<td align="right"><nobr>Z Depth (Z):</nobr></td>
-							<td align="left"><nobr><moi:DistanceInput id="drill_depth" onInput="calculateTool()" style="width:4em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Retract Depth (R):</nobr></</td>
-							<td align="left"><moi:TextInput id="drill_retract_depth" onInput="calculateTool()" style="width:4em;"/></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Peck Depth (P):</nobr></td>
-							<td align="left"><moi:TextInput id="tool_peck_depth" onInput="calculateTool()" style="width:4em;"/></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Plunge Rate (F):</nobr></td>
-							<td align="left"><moi:TextInput id="tool_plunge_rate" onInput="calculateTool()" style="width:4em;"/></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Spindle Speed (S):</nobr></td>
-							<td align="left"><moi:TextInput id="tool_spindle_speed" style="width:4em;"/></td>
-						</tr>
-				</table>
-				<moi:SmallBr /><moi:CommandDoneCancel />
-			</div>
-			<div id="OffsetProfileSelectPrompt" class="hiddencommandprompt"><strong>Offset Options</strong>
-				<table style="cellpadding: 0px">
-						<tr>
-							<td align="right"><nobr>Lead-in Radius:</nobr></td>
-							<td align="left"><nobr><moi:DistanceInput id="leadin_radius" style="width:4em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Overlap:</nobr></td>
-							<td align="left"><nobr><moi:DistanceInput id="overlap" style="width:4em;"/></nobr></td>
-						</tr>
-				</table>
-				<table style="cellpadding: 0px">
-						<tr>
-							<td align="right"><nobr>Offset:</nobr></td>
-							<td align="left">
-								<select id="offset_dir" onchange="" style="widthxxx:100%" >
-									<option value="left">Left (G41)</option>
-									<option value="right">Right (G42)</option>
-								</select>
-							</td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Z Steps:</nobr></td>
-							<td align="left"><moi:TextInput id="z_steps" style="width:4em;"/></td>
-						</tr>
-				</table>
-				<moi:SmallBr /><moi:CommandDoneCancel />
-			</div>
-			
-			<div id="HaasPocketOptionsPrompt" class="hiddencommandprompt"><strong>Haas G150 Pocket Options</strong>
-				<table style="cellpadding: 0px">
-						<tr>
-							<td align="right"><nobr>Depth Per Pass (Q):</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="haas_pocket_depth_per_pass" style="width:8em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Final Z Depth (R):</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="haas_pocket_z_depth" style="width:8em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Increment Axis:</nobr></td>
-							<td align="left"><nobr>
-								<select id="haas_pocket_increment_axis" onchange="" style="widthxxx:100%" >
-									<option value="I">(I) X-Axis</option>
-									<option value="J">(J) Y-Axis)</option>
-								</select>
-							</nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Increment:</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="haas_pocket_increment" style="width:8em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Finish (K):</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="haas_pocket_finish" style="width:8em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Retract Plane (R):</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="haas_pocket_retract" style="width:8em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Subprogram (P):</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="haas_pocket_subprogram" style="width:8em;"/></nobr></td>
-						</tr>
-						<tr>
-							<td align="right"><nobr>Offset:</nobr></td>
-							<td align="left">
-								<select id="haas_pocket_offset_dir" onchange="" style="widthxxx:100%" >
-									<option value="left">Left (G41)</option>
-									<option value="right">Right (G42)</option>
-								</select>
-							</td>
-						</tr>
-				</table>
-				<moi:CommandDoneCancel />
-			</div>
-			
-			
-			
 		</div>
-		
 		
 		
 		<div id="ToolOffsetStartSelectPrompt" class="hiddencommandprompt"><center><strong>Select Tool Offset<br>Starting Point</strong><moi:SmallBr />
@@ -225,6 +52,20 @@ th, td {
 						</tr>
 					</table>
 		<moi:CommandDoneCancel /></center>
+		</div>
+		
+		<div id="OriginSelectPrompt" class="hiddencommandprompt">
+			<strong>Select Origin Point</strong><moi:SmallBr />
+			<table style="cellpadding: 0px">
+					<tr>
+						<td align="right"><nobr>Coordinate System:</nobr></td>
+						<td align="left"><nobr><moi:TextInput id="coordinate_system" style="width:4em;"/></nobr></td>
+					</tr>
+					<tr>
+						<td align="center" colspan="2"><moi:CheckButton id="g92_offset">Use G92 Offset</moi:CheckButton></td>
+					</tr>
+				</table>
+				<moi:CommandDoneCancel />
 		</div>
 		
 		

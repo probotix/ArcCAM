@@ -10,6 +10,7 @@ moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spac
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/OrderCurvesIcon.png" command="OrderCurves">OrderCurves</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/SetCirclesIcon.png" command="SetCircles">SetCircles</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/RepairCirclesIcon.png" command="RepairCircles">RepairCircles</moi:/andButton>');
+moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/CirclesToArcsIcon.png" command="CirclesToArcs">CirclesToArcs</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/PointCoordsIcon.png" command="PointCoord">PointCoord</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/LeadInOutIcon.png" command="CreateLeadInOut">LeadInOut</moi:/andButton>');
 moi.ui.commandBar.CommandBarCustomUI.insertAdjacentHTML( "beforeEnd", '<moi:Spacer/><moi:CommandButton icon="moi://appdata/icons/PocketOffsetIcon.png" command="PocketOffset">PocketOffset</moi:/andButton>');

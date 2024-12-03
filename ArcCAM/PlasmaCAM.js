@@ -71,7 +71,7 @@ function ToolPathPlasma( curves, origin, feedrate, start_delay )
 	var retract = 0.1;
 	var feed = "20.";
 
-	
+	curves.sortBySelectionOrder();
 
 	for ( var i = 0; i < curves.length; i++ )
 	{	
@@ -221,14 +221,13 @@ function PickCurves()
 	origin.z = round( PickedPt.Z, decimals );
 	origin.coordinate_system = moi.ui.commandUI.coordinate_system.value;
 
+	var g5x = moi.ui.commandUI.coordinate_system.value;
 	
-	var file_coordinate_system = moi.ui.commandUI.coordinate_system.value;
-	
-	var preamble = "G54 G90 G17 G0 X0 Y0\nM65 P1";
+	var preamble = g5x + " G90 G17 G0 X0 Y0\nM65 P1";
 	addBlock( preamble );
 	
-	var feedrate = "30";
-	var start_delay = "2";
+	var feedrate = moi.ui.commandUI.feedrate.value;
+	var start_delay = moi.ui.commandUI.start_delay.value;
 	
 	
 	//alert(curves.length);	
