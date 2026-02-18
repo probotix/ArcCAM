@@ -200,14 +200,15 @@ th, td {
 				<center><strong>Choose Tool Path Type</strong><br><br>
 				
 				<!--<moi:Select binding="this.value = moi.geometryDatabase.units" default="2">-->
-				<moi:Select id='tool_path_type'>
-					<option value="Profile">Profile</option>
-					<option value="Offset Profile">Offset Profile</option>
-					<option value="Haas Pocket">Haas Pocket</option>
-					<option value="Pocket">Pocket</option>
-					<option value="Center Drill">Center Drill</option>
-					<option value="Drill">Drill</option>
-					<option value="Peck Drill">Peck Drill</option>
+					<moi:Select id='tool_path_type'>
+						<option value="Profile">Profile</option>
+						<option value="Offset Profile">Offset Profile</option>
+						<option value="Haas Pocket">Haas Pocket</option>
+						<option value="Spiral">Spiral (LinuxCNC)</option>
+						<option value="Pocket">Pocket</option>
+						<option value="Center Drill">Center Drill</option>
+						<option value="Drill">Drill</option>
+						<option value="Peck Drill">Peck Drill</option>
 					<option value="Tap">Tap</option>
 				</moi:Select>
 				<table style="cellpadding: 0px">
@@ -396,6 +397,37 @@ th, td {
 									<option value="right">Right (G42)</option>
 								</select>
 							</td>
+						</tr>
+				</table>
+				<moi:CommandDoneCancel />
+			</div>
+
+			<div id="SpiralOptionsPrompt" class="hiddencommandprompt"><strong>Spiral (LinuxCNC) Options</strong>
+				<table style="cellpadding: 0px">
+						<tr>
+							<td align="right"><nobr>Direction:</nobr></td>
+							<td align="left">
+								<select id="spiral_direction" onchange="" style="widthxxx:100%" >
+									<option value="G2">Clockwise (G2)</option>
+									<option value="G3">Counterclockwise (G3)</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Final Z Depth:</nobr></td>
+							<td align="left"><nobr><moi:TextInput id="spiral_z_depth" style="width:8em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Depth / Revolution:</nobr></td>
+							<td align="left"><nobr><moi:TextInput id="spiral_stepdown" style="width:8em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Clearance Z:</nobr></td>
+							<td align="left"><nobr><moi:TextInput id="spiral_clearance" style="width:8em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Helix Feed (F):</nobr></td>
+							<td align="left"><nobr><moi:TextInput id="spiral_feed" style="width:8em;"/></nobr></td>
 						</tr>
 				</table>
 				<moi:CommandDoneCancel />

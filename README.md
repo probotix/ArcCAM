@@ -42,3 +42,55 @@
 
 
 
+
+## Windows contributor workflow (recommended)
+
+If your git clone is at `C:\Users\lensh\Documents\GitHub\ArcCAM` and MoI uses `C:\Users\lensh\AppData\Roaming\Moi`, this workflow keeps development tight and low-risk.
+
+### 1) Treat the git repo as source of truth
+
+Edit files in the repo first, commit there, then sync to the MoI data folder for runtime testing.
+
+### 2) Use the sync script for fast round-trips
+
+`ArcCAM_push.ps1` now supports both directions:
+
+- Repo -> MoI (default, best for day-to-day testing)
+  - `powershell -ExecutionPolicy Bypass -File .\ArcCAM_push.ps1 -Direction ToMoi`
+- MoI -> Repo (use if you edited directly in `%AppData%`)
+  - `powershell -ExecutionPolicy Bypass -File .\ArcCAM_push.ps1 -Direction ToRepo`
+
+You can also override paths:
+
+- `powershell -ExecutionPolicy Bypass -File .\ArcCAM_push.ps1 -Direction ToMoi -RepoRoot "C:\Users\lensh\Documents\GitHub\ArcCAM" -MoiDataDir "C:\Users\lensh\AppData\Roaming\Moi"`
+
+### 3) Basic local test checklist in MoI
+
+After each change:
+
+1. Sync repo -> MoI.
+2. Start/restart MoI.
+3. Confirm command bar buttons appear (`ArcCAM`, `PlasmaCAM`, etc.).
+4. Run the command you changed and verify dialog flow.
+5. Generate code for a tiny known test geometry and inspect output in NC viewer.
+6. Verify no regressions in a second command (for example, `Profile` + `Haas Pocket`).
+
+### 4) Suggested smoke-test geometries
+
+Keep a small `.3dm` test file with:
+
+- one closed profile (line/arc mix),
+- one circle,
+- one group of same-size circles,
+- one open curve (for validation/error handling checks).
+
+### 5) Git routine that works well
+
+- Branch per change.
+- Keep commits small and single-purpose.
+- Include sample expected gcode snippets in PR descriptions.
+- If touching post logic, test at least 2 toolpath types before merging.
+
+### 6) Optional: reduce copy friction
+
+If you prefer, you can use directory junctions/symlinks so MoI reads directly from your repo-managed folder, but keep a backup copy first before switching.
