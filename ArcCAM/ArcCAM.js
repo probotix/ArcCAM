@@ -172,6 +172,7 @@ function build_section_preamble( section_name, tool_data, origin, section_num )
 		addBlock( coordinate_system + " G90 G17 G0" );
 		addBlock( "M3 S" + tool_data.rpm );
 		addBlock( "/M8" );
+		addBlock( "" );
 	else
 		addBlock( "N" + section_num );
 		addCommentBlock( section_name );
@@ -180,7 +181,7 @@ function build_section_preamble( section_name, tool_data, origin, section_num )
 		addBlock( "M3 S" + tool_data.rpm );
 		addBlock( "G43 H" + tool_data.number +  " Z1.0" );
 		addBlock( "/M8" );
-	addBlock( "" );
+		addBlock( "" );
 }
 
 function build_section_postamble( tool_data )
