@@ -132,7 +132,9 @@ function get_defaults()
 			//alert( 'ArcCAM_' + section + "_" + key + ": " + value[key] );
 			if( section == 'defaults' )
 			{
-				document.getElementById(key).value=value[key];
+				var input = document.getElementById(key);
+				if ( input )
+					input.value = value[key];
 			}
 		}
 	}
@@ -261,7 +263,14 @@ th, td {
 						<tr>
 							<td align="right">Step-over:</nobr></td>
 							<td align="left"><nobr><moi:DistanceInput id="tool_stepover" style="width:4em;"/></nobr></td>
-						</tr>	
+						</tr>
+							<tr>
+								<td align="right"><nobr>Section Post:</nobr></td>
+								<td align="left"><nobr><moi:Select id="section_post" style="width:8em;">
+									<option value="Haas">Haas</option>
+									<option value="LinuxCNC">LinuxCNC</option>
+								</moi:Select></nobr></td>
+							</tr>	
 						
 						<!--<tr>
 							<td><td>Hole Type:</td>
@@ -419,7 +428,11 @@ th, td {
 						</tr>
 						<tr>
 							<td align="right"><nobr>Depth / Revolution:</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="spiral_stepdown" style="width:8em;"/></nobr></td>
+							<td align="left"><nobr><moi:TextInput id="spiral_depth_per_rev" style="width:8em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Spiral Tool Diameter:</nobr></td>
+							<td align="left"><nobr><moi:TextInput id="spiral_tool_diameter" style="width:8em;"/></nobr></td>
 						</tr>
 						<tr>
 							<td align="right"><nobr>Clearance Z:</nobr></td>

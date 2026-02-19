@@ -94,3 +94,51 @@ Keep a small `.3dm` test file with:
 ### 6) Optional: reduce copy friction
 
 If you prefer, you can use directory junctions/symlinks so MoI reads directly from your repo-managed folder, but keep a backup copy first before switching.
+
+
+## Minimal solo workflow using `work` branch
+
+Use `main` as your known-good branch and `work` as the only branch where day-to-day changes are pushed.
+
+1. One-time setup (inside your ArcCAM repo):
+
+   ```bash
+   git checkout -B main
+   git checkout -B work
+   git push -u origin work
+   ```
+
+2. Daily development loop:
+
+   ```bash
+   git checkout work
+   git pull --ff-only
+   # edit files
+   git add -A
+   git commit -m "<small focused change>"
+   git push
+   ```
+
+3. If a change is bad, undo quickly on `work`:
+
+   - Safe undo commit:
+     ```bash
+     git revert <commit_sha>
+     git push
+     ```
+   - Or reset (only if you want history rewritten):
+     ```bash
+     git reset --hard <good_commit_sha>
+     git push --force-with-lease
+     ```
+
+4. Promote to stable when ready:
+
+   ```bash
+   git checkout main
+   git merge --ff-only work
+   git push origin main
+   ```
+
+This gives you easy rollbacks on `work` while keeping `main` clean and stable.
+
