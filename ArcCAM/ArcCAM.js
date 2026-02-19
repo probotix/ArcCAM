@@ -158,6 +158,46 @@ function addToolSection()
 	return;
 }
 
+function build_section_preamble( section_name, tool_data, origin, section_num )
+{
+	var coordinate_system = ini['defaults']['coordinate_system'];
+	if ( origin && origin.coordinate_system )
+		coordinate_system = origin.coordinate_system;
+
+	var post = tool_data.post || "Haas";
+	addBlock( "N" + section_num );
+	addCommentBlock( section_name );
+	addBlock( "T" + tool_data.number + " M6" );
+	addBlock( coordinate_system + " G90 G17 G0 X0 Y0" );
+	addBlock( "M3 S" + tool_data.rpm );
+	addBlock( "G43 H" + tool_data.number +  " Z1.0" );
+	if ( post == "LinuxCNC" )
+		addBlock( "M8" );
+	else
+		addBlock( "/M8" );
+	addBlock( "" );
+}
+
+function build_section_postamble( tool_data )
+{
+	var post = tool_data.post || "Haas";
+	if ( post == "LinuxCNC" )
+	{
+		addBlock( "G0 Z1.0" );
+		addBlock( "M9" );
+		addBlock( "M5" );
+		addBlock( "M1" );
+	}
+	else
+	{
+		addBlock( "G00 G80 Z1. M09" );
+		addBlock( "G28 G91 Z0 M05" );
+		addBlock( "G28 Y0" );
+		addBlock( "M01" );
+	}
+	addBlock( "" );
+}
+
 //function addToolSection()
 //{
 //	sub_program += tool_section + "\nG0 Z1.0\nM1\n\n\n";
@@ -166,7 +206,7 @@ function addToolSection()
 //}
 
 
-function ToolPathProfile( curves, origin )
+function ToolPathProfile( curves, origin, tool_data )
 {
 	var gx = "G1";
 	var zdepth = -1.01;
@@ -174,9 +214,7 @@ function ToolPathProfile( curves, origin )
 	var feed = "20.";
 
 	
-	addCommentBlock( "Profile" );
-	var tool_preamble = "T1 M6\nG54 G90 G17 G0 X0 Y0\nM3 S6000\nG43 H1 Z1.0\n/M8";
-	addBlock( tool_preamble );
+	build_section_preamble( "Profile", tool_data, origin, 1 );
 	
 	for ( var i = 0; i < curves.length; i++ )
 	{
@@ -272,6 +310,7 @@ function ToolPathProfile( curves, origin )
 				//gcode += " (Segment " + j + " => " + type + ")";
 		}	
 	}
+	build_section_postamble( tool_data );
 	addToolSection();
 }
 
@@ -297,9 +336,7 @@ function ToolPathOffsetProfile( curves, origin, offset, tool_offset_start, tool_
 	}
 
 	
-	addCommentBlock( "Offset Profile" );
-	var tool_preamble = "T1 M6\nG54 G90 G17 G0 X0 Y0\nM3 S6000\nG43 H1 Z1.0\n/M8";
-	addBlock( tool_preamble );
+	build_section_preamble( "Offset Profile", tool_data, origin, 1 );
 	
 	for ( var i = 0; i < curves.length; i++ )
 	{
@@ -398,6 +435,7 @@ function ToolPathOffsetProfile( curves, origin, offset, tool_offset_start, tool_
 		
 		addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z + "G40");
 	}
+	build_section_postamble( tool_data );
 	addToolSection();
 }
 
@@ -421,14 +459,7 @@ function ToolPathHaasPocket( curves, origin, offset, tool_data, haas_pocket_opti
 	for ( var i = 0; i < curves.length; i++ )
 	{
 		section_num = i + 1;
-		addBlock( "N" + section_num);
-		addCommentBlock( "Haas G150 Pocket" );
-		addBlock( "T" + tool_data.number + " M6" );
-		addBlock( origin.coordinate_system + " G90 G17 G0 X0 Y0" );
-		addBlock( "M3 S" + tool_data.rpm );
-		addBlock( "G43 H" + tool_data.number +  " Z1.0" );
-		addBlock( "/M8" );
-		addBlock( "" );
+		build_section_preamble( "Haas G150 Pocket", tool_data, origin, section_num );
 	
 	
 		var segments = curves.item(i).getSubObjects();
@@ -487,11 +518,6 @@ function ToolPathHaasPocket( curves, origin, offset, tool_data, haas_pocket_opti
 				addBlock( pocket_block );
 				addBlock( "" );
 				addBlock( "G40" );
-				addBlock( "" );
-				addBlock( "G00 G80 Z1. M09" );
-				addBlock( "G28 G91 Z0 M05" );
-				addBlock( "G28 Y0" );
-				addBlock( "M01" );
 				addBlock( "" );
 
 				addSubProgramBlock("POCKET DEFINITION", true);
@@ -559,6 +585,7 @@ function ToolPathHaasPocket( curves, origin, offset, tool_data, haas_pocket_opti
 		}	
 		
 		//addBlock( "G1 X" + tool_offset_start.x  + " Y" + tool_offset_start.y + " Z" + tool_offset_start.z + "G40");
+		build_section_postamble( tool_data );
 		addSubProgramBlock( "M99" );
 		addSubProgramBlock( "" );
 		addSubProgramBlock( "" );
@@ -572,13 +599,7 @@ function ToolPathSpiral( curves, origin, tool_data, spiral_options )
 	if ( origin && origin.coordinate_system )
 		coordinate_system = origin.coordinate_system;
 
-	addCommentBlock( "Spiral (LinuxCNC)" );
-	addBlock( "T" + tool_data.number + " M6" );
-	addBlock( coordinate_system + " G90 G17 G0 X0 Y0" );
-	addBlock( "M3 S" + tool_data.rpm );
-	addBlock( "G43 H" + tool_data.number +  " Z1.0" );
-	addBlock( "/M8" );
-	addBlock( "" );
+	build_section_preamble( "Spiral (LinuxCNC)", tool_data, origin, 1 );
 
 	var direction = spiral_options.direction;
 	var z_target = Number( spiral_options.z_depth );
@@ -633,6 +654,7 @@ function ToolPathSpiral( curves, origin, tool_data, spiral_options )
 		addBlock( "" );
 	}
 
+	build_section_postamble( tool_data );
 	addToolSection();
 }
 
@@ -661,7 +683,7 @@ function ToolPathDrill( curves, origin )
 	return;
 }
 
-function ToolPathCannedCycle( type, curves, origin )
+function ToolPathCannedCycle( type, curves, origin, tool_data )
 {	
 	var zdepth = -1.01;
 	var retract = 0.1;
@@ -670,12 +692,7 @@ function ToolPathCannedCycle( type, curves, origin )
 	var prevy = "";
 	var prevz = "";
 	
-	addCommentBlock( "Center Drill" );
-	addBlock( "T1 M6" );
-	addBlock( "G54 G90 G17 G0 X0 Y0" );
-	addBlock( "M3 S6000" );
-	addBlock( "G43 H1 Z1.0" );
-	addBlock( "/M8" );
+	build_section_preamble( type, tool_data, origin, 1 );
 	
 	switch( type )
 	{
@@ -786,6 +803,7 @@ function ToolPathCannedCycle( type, curves, origin )
 			}
 		}	
 	}
+	build_section_postamble( tool_data );
 	addToolSection();
 	return;
 }
@@ -825,6 +843,7 @@ function PickCurves()
 	tool_data.rpm = moi.ui.commandUI.tool_rpm.value;
 	tool_data.stepover = moi.ui.commandUI.tool_stepover.value;
 	tool_data.d_value = moi.ui.commandUI.tool_d_value.value;
+	tool_data.post = moi.ui.commandUI.section_post.value;
 	
 	debug(dump(tool_data));
 	
@@ -977,7 +996,7 @@ function PickCurves()
 		switch( tool_path_type )
 		{
 			case "Profile":
-				ToolPathProfile( curves, origin );
+				ToolPathProfile( curves, origin, tool_data );
 				break;
 			case "Spiral":
 				ToolPathSpiral( curves, origin, tool_data, spiral_options );
@@ -992,7 +1011,7 @@ function PickCurves()
 		case "Drill":
 		case "Peck Drill":
 		case "Tap":
-			ToolPathCannedCycle( tool_path_type, curves, origin );
+			ToolPathCannedCycle( tool_path_type, curves, origin, tool_data );
 			break;
 		default:
 			//alert('default');
