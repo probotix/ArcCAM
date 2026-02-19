@@ -165,15 +165,20 @@ function build_section_preamble( section_name, tool_data, origin, section_num )
 		coordinate_system = origin.coordinate_system;
 
 	var post = tool_data.post || "Haas";
-	addBlock( "N" + section_num );
-	addCommentBlock( section_name );
-	addBlock( "T" + tool_data.number + " M6" );
-	addBlock( coordinate_system + " G90 G17 G0 X0 Y0" );
-	addBlock( "M3 S" + tool_data.rpm );
-	addBlock( "G43 H" + tool_data.number +  " Z1.0" );
+	
 	if ( post == "LinuxCNC" )
-		addBlock( "M8" );
+		addBlock( "N" + section_num );
+		addCommentBlock( section_name );
+		addBlock( coordinate_system + " G90 G17 G0" );
+		addBlock( "M3 S" + tool_data.rpm );
+		addBlock( "/M8" );
 	else
+		addBlock( "N" + section_num );
+		addCommentBlock( section_name );
+		addBlock( "T" + tool_data.number + " M6" );
+		addBlock( coordinate_system + " G90 G17 G0 X0 Y0" );
+		addBlock( "M3 S" + tool_data.rpm );
+		addBlock( "G43 H" + tool_data.number +  " Z1.0" );
 		addBlock( "/M8" );
 	addBlock( "" );
 }
