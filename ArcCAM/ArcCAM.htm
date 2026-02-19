@@ -132,7 +132,9 @@ function get_defaults()
 			//alert( 'ArcCAM_' + section + "_" + key + ": " + value[key] );
 			if( section == 'defaults' )
 			{
-				document.getElementById(key).value=value[key];
+				var input = document.getElementById(key);
+				if ( input )
+					input.value = value[key];
 			}
 		}
 	}
@@ -419,7 +421,11 @@ th, td {
 						</tr>
 						<tr>
 							<td align="right"><nobr>Depth / Revolution:</nobr></td>
-							<td align="left"><nobr><moi:TextInput id="spiral_stepdown" style="width:8em;"/></nobr></td>
+							<td align="left"><nobr><moi:TextInput id="spiral_depth_per_rev" style="width:8em;"/></nobr></td>
+						</tr>
+						<tr>
+							<td align="right"><nobr>Spiral Tool Diameter:</nobr></td>
+							<td align="left"><nobr><moi:TextInput id="spiral_tool_diameter" style="width:8em;"/></nobr></td>
 						</tr>
 						<tr>
 							<td align="right"><nobr>Clearance Z:</nobr></td>
