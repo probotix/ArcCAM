@@ -566,6 +566,75 @@ function ToolPathHaasPocket( curves, origin, offset, tool_data, haas_pocket_opti
 	addToolSection();
 }
 
+function ToolPathSpiral( curves, origin, tool_data, spiral_options )
+{
+	var coordinate_system = ini['defaults']['coordinate_system'];
+	if ( origin && origin.coordinate_system )
+		coordinate_system = origin.coordinate_system;
+
+	addCommentBlock( "Spiral (LinuxCNC)" );
+	addBlock( "T" + tool_data.number + " M6" );
+	addBlock( coordinate_system + " G90 G17 G0 X0 Y0" );
+	addBlock( "M3 S" + tool_data.rpm );
+	addBlock( "G43 H" + tool_data.number +  " Z1.0" );
+	addBlock( "/M8" );
+	addBlock( "" );
+
+	var direction = spiral_options.direction;
+	var z_target = Number( spiral_options.z_depth );
+	var stepdown = Math.abs( Number( spiral_options.stepdown ) );
+	var clearance = Number( spiral_options.clearance );
+	var feed = Number( spiral_options.feed );
+
+	if ( !stepdown || stepdown <= 0 )
+	{
+		stepdown = 0.01;
+	}
+
+	for ( var i = 0; i < curves.length; i++ )
+	{
+		var curve = curves.item(i);
+		if ( !curve.isCircle )
+			continue;
+
+		var centerx = round( curve.conicFrame.origin.x, decimals );
+		var centery = round( curve.conicFrame.origin.y, decimals );
+		var radius = round( curve.conicRadius, decimals );
+
+		if( ini['workspace']['origin_offset'] )
+		{
+			centerx = round( centerx - origin.x, decimals );
+			centery = round( centery - origin.y, decimals );
+		}
+
+		var startx = round( Number( centerx ) + Number( radius ), decimals );
+		var starty = centery;
+		var i_offset = round( Number( centerx ) - Number( startx ), decimals );
+		var current_z = 0;
+
+		addCommentBlock( "Spiral Circle " + (i + 1) );
+		addBlock( "G0 Z" + clearance );
+		addBlock( "G0 X" + startx + " Y" + starty );
+		addBlock( "F" + feed );
+
+		while ( current_z > z_target )
+		{
+			var next_z = current_z - stepdown;
+			if ( next_z < z_target )
+				next_z = z_target;
+
+			addBlock( direction + " X" + startx + " Y" + starty + " I" + i_offset + " J0" + " Z" + round( next_z, decimals ) );
+			current_z = next_z;
+		}
+
+		addBlock( direction + " X" + startx + " Y" + starty + " I" + i_offset + " J0" );
+		addBlock( "G0 Z" + clearance );
+		addBlock( "" );
+	}
+
+	addToolSection();
+}
+
 
 
 
@@ -775,11 +844,26 @@ function PickCurves()
 	
 	
 
-	switch( tool_path_type )
-	{
-		case "Profile":
-			break;
-		case "Haas Pocket":
+		switch( tool_path_type )
+		{
+			case "Profile":
+				break;
+			case "Spiral":
+				moi.ui.beginUIUpdate();
+				moi.ui.hideUI( 'CurveSelectPrompt' );
+				moi.ui.showUI( 'SpiralOptionsPrompt' );
+				moi.ui.endUIUpdate();
+				if ( !WaitForDialogDone() )
+					return;
+
+				var spiral_options = {};
+				spiral_options.direction = moi.ui.commandUI.spiral_direction.value;
+				spiral_options.z_depth = moi.ui.commandUI.spiral_z_depth.value;
+				spiral_options.stepdown = moi.ui.commandUI.spiral_stepdown.value;
+				spiral_options.clearance = moi.ui.commandUI.spiral_clearance.value;
+				spiral_options.feed = moi.ui.commandUI.spiral_feed.value;
+				break;
+			case "Haas Pocket":
 			moi.ui.beginUIUpdate();
 			moi.ui.hideUI( 'CurveSelectPrompt' );
 			moi.ui.showUI( 'HaasPocketOptionsPrompt' );
@@ -851,10 +935,11 @@ function PickCurves()
 		moi.ui.hideUI( 'CurveSelectPrompt' );
 		moi.ui.hideUI( 'OffsetProfileSelectPrompt' );
 		moi.ui.hideUI( 'tool_path_typeSelectPrompt' );
-		moi.ui.hideUI( 'ToolOffsetStartSelectPrompt' );
-		moi.ui.hideUI( 'HaasPocketOptionsPrompt' );
-		moi.ui.showUI( 'OriginSelectPrompt' );
-		moi.ui.endUIUpdate();
+			moi.ui.hideUI( 'ToolOffsetStartSelectPrompt' );
+			moi.ui.hideUI( 'HaasPocketOptionsPrompt' );
+			moi.ui.hideUI( 'SpiralOptionsPrompt' );
+			moi.ui.showUI( 'OriginSelectPrompt' );
+			moi.ui.endUIUpdate();
 		
 		// pick origin
 		
@@ -885,12 +970,15 @@ function PickCurves()
 	
 	
 		
-	switch( tool_path_type )
-	{
-		case "Profile":
-			ToolPathProfile( curves, origin );
-			break;
-		case "Haas Pocket":
+		switch( tool_path_type )
+		{
+			case "Profile":
+				ToolPathProfile( curves, origin );
+				break;
+			case "Spiral":
+				ToolPathSpiral( curves, origin, tool_data, spiral_options );
+				break;
+			case "Haas Pocket":
 			ToolPathHaasPocket( curves, origin, offset, tool_data, haas_pocket_options );
 			break;
 		case "Offset Profile":
